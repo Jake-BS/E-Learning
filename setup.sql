@@ -1,0 +1,35 @@
+
+-- make sure the websiteuser account is set up and has the correct privileges
+CREATE USER IF NOT EXISTS websiteuser IDENTIFIED BY 'websitepassword';
+GRANT INSERT, SELECT, UPDATE, DELETE ON website.* TO websiteuser;
+
+DROP TABLE IF EXISTS accounts;
+
+CREATE TABLE IF NOT EXISTS accounts (
+  id MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user VARCHAR(25) NOT NULL,
+  pass VARCHAR(70) NOT NULL,
+  userType VARCHAR(25) NOT NULL,
+  isAdmin VARCHAR(5) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS content (
+  id MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  teacher VARCHAR(25) NOT NULL,
+  title VARCHAR(70) NOT NULL,
+  ImageUrl VARCHAR(25) NOT NULL,
+  dateTime VARCHAR(25) NOT NULL,
+  views INTEGER(70) NOT NULL,
+  question VARCHAR(25) NOT NULL,
+  NOCAQs VARCHAR(25) NOT NULL,
+  NOAs VARCHAR(70) NOT NULL,
+  questionText VARCHAR(25) NOT NULL,
+  questionImage VARCHAR(25) NOT NULL,
+  correctA VARCHAR(70) NOT NULL,
+  inCAOne VARCHAR(25) NOT NULL,
+  inCATwo VARCHAR(25) NOT NULL,
+  inCAThree VARCHAR(25) NOT NULL,
+);
+
+INSERT INTO accounts(user, pass)
+	VALUES("doej", "$2b$10$gL33obKAFUT5DK3pEbh72OIHztsWBniBBh.PdeKOrF1yr5KFAsdZO");
