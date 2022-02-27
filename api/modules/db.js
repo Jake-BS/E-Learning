@@ -25,6 +25,5 @@ const conn = connectionData[home]
 console.log(conn)
 
 const db = await new Client().connect(conn)
-await db.query(setup.sql)
 
 export { db }

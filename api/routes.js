@@ -4,7 +4,7 @@
 import { Router } from 'https://deno.land/x/oak@v6.5.1/mod.ts'
 
 import { extractCredentials, saveFile } from './modules/util.js'
-import { login, register } from './modules/accounts.js'
+import { login, register, getStudent } from './modules/accounts.js'
 import {studentSchema} from './schemas.js'
 import {teacherSchema} from './schemas.js'
 import {contentSchema} from './schemas.js'
@@ -50,72 +50,66 @@ router.get('/api/accounts', async context => {
 })
 
 //teachers and admins should be able to access this
-router.get('/teachers', async context => {
-	context.response.headers.set('Allow', 'GET, POST')
-	const sql = 'SELECT CONCAT(firstname, " ", lastname) AS name, id FROM actors;'
-	const actors = await db.query(sql)
-	actors.forEach(teacher => {
-		teacher.url = `https://${context.host}/actors/${teacher.id}`
-		delete teacher.id
-	})
-	const data = {
-		name: 'teachers',
-		desc: 'a list of teachers',
-		schema: {
-			teacherSchema
-		},
-		data: teachers
-	}
-	context.response.body = JSON.stringify(data, null, 2)
-})
-
-//teachers and admins should be able to access this
-router.get('/teachers/:id', async context => {
+router.get('/api/accounts/:id', async context => {
 	context.response.headers.set('Allow', 'GET, PUT, DELETE')
-	const sql = `SELECT * FROM teachers WHERE id = ${context.params.id};`
-	const actors = await db.query(sql)
-	if(actors.length === 0) throw new Error('record not found')
-	const actor = actors[0]
-	const data = {
-		name: `${actor.firstname} ${actor.lastname}`,
-		desc: `profile for ${actor.firstname} ${actor.lastname}`,
-		schema: {
-			studentSchema
-		},
-		data: actor
-	}
-	context.response.status = Status.OK
-	context.response.body = JSON.stringify(data, null, 2)
-})
-
-//students and admins should be able to access this
-router.get('/api/students', async context => {
-	console.log('GET /api/students')
-	const token = context.request.headers.get('Authorization')
-	console.log(`auth: ${token}`)
 	try {
-		const credentials = extractCredentials(token)
-		console.log(credentials)
-		const username = await login(credentials)
-		console.log(`username: ${username}`)
-		context.response.body = JSON.stringify(
-			{
-				studentSchema
-			})
-	} catch(err) {
-		context.response.status = 401
-		context.response.body = JSON.stringify(
-			{
-				errors: [
-					{
-						title: '401 Unauthorized.',
-						detail: err.message
-					}
+		const accounts = await getStudent(context.params.id)
+		if(accounts.length === 0) throw new Error('record not found')
+		const account = accounts[0]
+		//the below line is currently hard coded but should depend on what type the user id is associated with in the db.
+		const accountType = "teacher"
+		let data = {message: "unknown account type making request"}
+		if (accountType === "student") {
+			//required data should be pulled from the user's personal table, as well as the content table.
+			data = {
+			user: `${account.user}`,
+			contentViewedCount: "5",
+			numberOfTestsAttempted: "3",
+			averageScore: "67%",
+			content: [
+				{
+					title: "Learning with John",
+					date: "12/12/12",
+					teacherName : "John",
+					accessed: "true"
+				},
+				{
+					title: "Learning with Bruh",
+					date: "12/12/13",
+					teacherName : "Bruh",
+					accessed: "false"
+				}
 				]
 			}
-		, null, 2)
+		} else if (accountType == "teacher") {
+			//required data should be pulled from the user's personal table, as well as the content table.
+			data = {
+			user: `${account.user}`,
+			content: [
+				{
+					title: "Learning with John",
+					views: 123,
+					questionAttempts: 11,
+					passrate: "67%"
+				},
+				{
+					title: "Learning with John 2",
+					views: 321,
+					questionAttempts: 10,
+					passrate: "50%"
+				}
+				]
+			}
+		}
+		
+		context.response.status = 200
+		context.response.body = JSON.stringify(data, null, 2)
+	} catch(err) {
+		console.log(err)
 	}
+	
 })
+
 
 //anyone should be able to create an account
 router.post('/api/accounts', async context => {

@@ -38,4 +38,8 @@ export async function register(credentials) {
 
 //export async function getTeacher(credentials) {}
 
-//export async function getStudent(credentials) {}
+export async function getStudent(id) {
+	const sql = `SELECT * FROM accounts WHERE id = ${id};`
+	const accounts = await db.query(sql)
+	return accounts
+}
