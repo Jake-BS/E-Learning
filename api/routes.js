@@ -52,14 +52,14 @@ router.get('/api/accounts', async context => {
 })
 
 //teachers and admins should be able to access this
-router.get('/api/accounts/:id', async context => {
+router.get('/api/accounts/:username', async context => {
 	context.response.headers.set('Allow', 'GET, PUT, DELETE')
 	try {
-		const accounts = await getStudent(context.params.id)
+		const accounts = await getStudent(context.params.username)
 		if(accounts.length === 0) throw new Error('record not found')
 		const account = accounts[0]
 		//the below line is currently hard coded but should depend on what type the user id is associated with in the db.
-		const accountType = "student"
+		const accountType = account.userType
 		let data = {message: "unknown account type making request"}
 		if (accountType === "student") {
 			//required data should be pulled from the user's personal table, as well as the content table.
@@ -80,7 +80,7 @@ router.get('/api/accounts/:id', async context => {
 					id: 1,
 					title: "Learning with Bruh",
 					date: "12/12/13",
-					teacherNameERROR : "Bruh",
+					teacherName: "Bruh",
 					accessed: "false"
 				}
 				]
@@ -147,7 +147,7 @@ router.post('/api/content', async context => {
 	console.log(data)
 	await register(data)
 	context.response.status = 201
-	context.response.body = JSON.stringify({ status: 'success', msg: 'account created' })
+	context.response.body = JSON.stringify({ status: 'success', msg: 'content created' })
 })
 
 //perhaps just admin
