@@ -1,38 +1,44 @@
-const studentSchema = {
-    schema: {
-        type: "object",
-        properties: {
+const studentHomeSchema = {
+    type: "object",
+      properties: {
         username: {
-            type: "string"
+          type: "string"
         },
-        numberOfTestsDone: {
-            type: "integer"
+        contentViewedCount: {
+          type: "integer"
         },
-        numberOfContentOpened: {
-            type: "integer"
+        numberOfTestsAttempted: {
+          type: "integer"
         },
-        numberOfAnswersCorrect: {
-            type: "integer"
+        averageScore: {
+          type: "string"
         },
-        numberOfQuestionsAnswered: {
-            type: "integer"
-        },
-        contentAccessed: {
-            type: "array",
-            items: {
+        content: {
+          type: "array",
+          items: {
             properties: {
-                contentId: {
-                type: "integer"
-                },
-                chosenAnswer: {
-                type: "string"
-                }
-            }
-            }
+              id: {
+              type: "integer"
+              },
+              title: {
+              type: "string"
+              },
+              date: {
+              type: "string"
+              },
+              teacherName: {
+              type: "string"
+              },
+              accessed: {
+              type: "string"
+              }
+            },
+            required: ["id", "title", "date", "teacherName", "accessed"]
+          }
         }
-        }
-    }
-}
+    },
+    required: ["username", "contentViewedCount", "numberOfTestsAttempted", "averageScore", "content"]
+  }
 
 const teacherSchema = {
   schema: {
@@ -168,4 +174,4 @@ const contentSchema = {
   }
 }
 
-export {studentSchema, teacherSchema, contentSchema};
+export {studentHomeSchema, teacherSchema, contentSchema};
