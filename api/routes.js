@@ -5,14 +5,9 @@ import { Router } from 'https://deno.land/x/oak@v6.5.1/mod.ts'
 
 import { extractCredentials, saveFile } from './modules/util.js'
 import { login, register, getStudent } from './modules/accounts.js'
-import {studentHomeSchema} from './schemas.js'
-import {teacherSchema} from './schemas.js'
-import {contentSchema} from './schemas.js'
 import { Client } from 'https://deno.land/x/mysql/mod.ts'
-import Ajv from './ajv.js'
 
 const router = new Router()
-const ajv = new Ajv({allErrors: true})
 
 // the routes defined here
 //Only admin should access route
@@ -55,62 +50,10 @@ router.get('/api/accounts', async context => {
 router.get('/api/accounts/:username', async context => {
 	context.response.headers.set('Allow', 'GET, PUT, DELETE')
 	try {
-		const accounts = await getStudent(context.params.username)
-		if(accounts.length === 0) throw new Error('record not found')
-		const account = accounts[0]
+		const accountHomeData = await getStudent(context.params.username)
 		//the below line is currently hard coded but should depend on what type the user id is associated with in the db.
-		const accountType = account.userType
-		let data = {message: "unknown account type making request"}
-		if (accountType === "student") {
-			//required data should be pulled from the user's personal table, as well as the content table.
-			data = {
-			username: `${account.user}`,
-			contentViewedCount: 5,
-			numberOfTestsAttempted: 3,
-			averageScore: "67%",
-			content: [
-				{
-					id: 1,
-					title: "Learning with John",
-					date: "12/12/12",
-					teacherName : "John",
-					accessed: "true"
-				},
-				{
-					id: 1,
-					title: "Learning with Bruh",
-					date: "12/12/13",
-					teacherName: "Bruh",
-					accessed: "false"
-				}
-				]
-			}
-			const validate = ajv.compile(studentHomeSchema)
-			const valid = validate(data)
-			if (!valid) throw new Error("Data pulled does not match the student home data schema. Validation error: " + validate.errors)
-		} else if (accountType == "teacher") {
-			//required data should be pulled from the user's personal table, as well as the content table.
-			data = {
-			user: `${account.user}`,
-			content: [
-				{
-					title: "Learning with John",
-					views: 123,
-					questionAttempts: 11,
-					passrate: "67%"
-				},
-				{
-					title: "Learning with John 2",
-					views: 321,
-					questionAttempts: 10,
-					passrate: "50%"
-				}
-				]
-			}
-		}
-
 		context.response.status = 200
-		context.response.body = JSON.stringify(data, null, 2)
+		context.response.body = JSON.stringify(accountHomeData, null, 2)
 	} catch(err) {
 		console.log(err)
 		context.response.status = 400
