@@ -4,7 +4,7 @@
 import { Router } from 'https://deno.land/x/oak@v6.5.1/mod.ts'
 
 import { extractCredentials, saveFile } from './modules/util.js'
-import { login, register, getStudent } from './modules/accounts.js'
+import { login, register, getHomeData } from './modules/accounts.js'
 import { Client } from 'https://deno.land/x/mysql/mod.ts'
 
 const router = new Router()
@@ -50,7 +50,7 @@ router.get('/api/accounts', async context => {
 router.get('/api/accounts/:username', async context => {
 	context.response.headers.set('Allow', 'GET, PUT, DELETE')
 	try {
-		const accountHomeData = await getStudent(context.params.username)
+		const accountHomeData = await getHomeData(context.params.username)
 		//the below line is currently hard coded but should depend on what type the user id is associated with in the db.
 		context.response.status = 200
 		context.response.body = JSON.stringify(accountHomeData, null, 2)

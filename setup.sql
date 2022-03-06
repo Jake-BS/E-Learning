@@ -1,7 +1,7 @@
 
 -- make sure the websiteuser account is set up and has the correct privileges
 CREATE USER IF NOT EXISTS websiteuser IDENTIFIED BY 'websitepassword';
-GRANT INSERT, SELECT, UPDATE, DELETE ON website.* TO websiteuser;
+GRANT INSERT, SELECT, UPDATE, DELETE, CREATE ON website.* TO websiteuser;
 
 DROP TABLE IF EXISTS accounts;
 DROP TABLE IF EXISTS content;
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS content (
   NOCAQs INTEGER NOT NULL,
   NOAs INTEGER NOT NULL,
   questionText VARCHAR(500) NOT NULL,
-  questionImageURL VARCHAR(500) NOT NULL,
+  questionImageUrl VARCHAR(500) NOT NULL,
   correctA VARCHAR(100) NOT NULL,
   inCAOne VARCHAR(100) NOT NULL,
   inCATwo VARCHAR(100) NOT NULL,

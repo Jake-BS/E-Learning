@@ -27,24 +27,24 @@ export async function register(credentials) {
 	credentials.pass = await hash(credentials.pass, salt)
 	try {
 		let sql = `INSERT INTO accounts(user, pass, userType, isAdmin) VALUES("${credentials.user}", "${credentials.pass}", "${credentials.userType}", "${credentials.isAdmin}")`
-		console.log(sql)
+		console.log("Pre if statement sql: " + sql)
 		await db.query(sql)
-		if (credentials.userType === "student")
+		if (credentials.userType == "student")
 		{
-			let sql = `CREATE TABLE IF NOT EXISTS ${credentials.user}(
+			sql = `CREATE TABLE IF NOT EXISTS ${credentials.user}(
 			contentID INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 			testDone VARCHAR(5),
 			contentOpened VARCHAR(5),
 			answerCorrect VARCHAR(5)
 			);`
-		} else if (credentials.userType === "teacher")
+		} else if (credentials.userType == "teacher")
 		{
-			let sql = `CREATE TABLE IF NOT EXISTS ${credentials.user}(
+			sql = `CREATE TABLE IF NOT EXISTS ${credentials.user}(
 			contentID INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 			editted VARCHAR(5)
 			);`
 		} else throw new Error("Invalid user type - must be student or teacher")
-		console.log(sql)
+		console.log("Post if statement sql : " + sql)
 		await db.query(sql)
 	} catch(err) {
 		console.log(err)
@@ -52,29 +52,42 @@ export async function register(credentials) {
 	return true
 }
 
-//export async function getTeacher(credentials) {}
-
-export async function getStudent(user) {
-	let sql = `SELECT * FROM accounts WHERE user = "${user}";`
-	const accounts = await db.query(sql)
-	const account = accounts[0]
-	let homeData = {message: "unknown account type making request"}
-	if (account.userType === "student") {
-		//required data should be pulled from the user's personal table, as well as the content table.
-		//THE BELOW THREE LINES COULD PROBABLY BE WRITTEN IN A FOR LOOP
-		sql = `SELECT COUNT(*) as countValue from ${account.user} WHERE contentOpened = "true"`
-		const openedCount = await db.query(sql)
-		sql = `SELECT COUNT(*) as countValue from ${account.user} WHERE testDone = "true"`
-		const testDoneCount = await db.query(sql)
-		sql = `SELECT COUNT(*) as countValue from ${account.user} WHERE answerCorrect = "true"`
-		const correctAnswerCount = await db.query(sql)
-		let averageScoreString = ""
-		if (testDoneCount[0].countValue > 0)
-		{
-			let averageScore = correctAnswerCount[0].countValue/testDoneCount[0].countValue
-			averageScoreString = (averageScore * 100).toString()
-		} else averageScoreString = "No tests completed"
-		homeData = {
+async function homeTeacher(account) {
+	const homeData = {
+		user: `${account.user}`,
+		content: [
+			{
+				title: "Learning with John",
+				views: 123,
+				questionAttempts: 11,
+				passrate: "67%"
+			},
+			{
+				title: "Learning with John 2",
+				views: 321,
+				questionAttempts: 10,
+				passrate: "50%"
+			}
+		]
+	}
+	return homeData
+}
+async function homeStudent(account) {
+	//required data should be pulled from the user's personal table, as well as the content table.
+	//THE BELOW THREE LINES COULD PROBABLY BE WRITTEN IN A FOR LOOP
+	let sql = `SELECT COUNT(*) as countValue from ${account.user} WHERE contentOpened = "true"`
+	const openedCount = await db.query(sql)
+	sql = `SELECT COUNT(*) as countValue from ${account.user} WHERE testDone = "true"`
+	const testDoneCount = await db.query(sql)
+	sql = `SELECT COUNT(*) as countValue from ${account.user} WHERE answerCorrect = "true"`
+	const correctAnswerCount = await db.query(sql)
+	let averageScoreString = ""
+	if (testDoneCount[0].countValue > 0)
+	{
+		let averageScore = correctAnswerCount[0].countValue/testDoneCount[0].countValue
+		averageScoreString = (averageScore * 100).toString()
+	} else averageScoreString = "No tests completed"
+	const homeData = {
 		username: account.user,
 		contentViewedCount: openedCount[0].countValue,
 		numberOfTestsAttempted: testDoneCount[0].countValue,
@@ -96,29 +109,31 @@ export async function getStudent(user) {
 			}
 			]
 		}
+	return homeData
+}
+
+export async function getHomeData(user) {
+	let sql = `SELECT * FROM accounts WHERE user = "${user}";`
+	const accounts = await db.query(sql)
+	const account = accounts[0]
+	let homeData = {message: "unknown account type making request"}
+	if (account.userType === "student") {
+		homeData = homeStudent(account)
 		//Checking against schema
 		const validate = ajv.compile(studentHomeSchema)
 		const valid = validate(homeData)
 		if (!valid) console.log("Data pulled does not match the student home data schema. Validation error: " + validate.errors)
-		} else if (account.userType == "teacher") {
-			//required data should be pulled from the user's personal table, as well as the content table.
-			homeData = {
-			user: `${account.user}`,
-			content: [
-				{
-					title: "Learning with John",
-					views: 123,
-					questionAttempts: 11,
-					passrate: "67%"
-				},
-				{
-					title: "Learning with John 2",
-					views: 321,
-					questionAttempts: 10,
-					passrate: "50%"
-				}
-				]
-			}
-		}
+	} else if (account.userType == "teacher") {
+		//required data should be pulled from the user's personal table, as well as the content table.
+		homeData = homeTeacher(account)
+	}
 	return homeData
+}
+
+export async function postContent(content) {
+	const sql = `INSERT INTO content(teacher, title, imageUrl, curDate, views, question, NOCAQs, NOAs, questionText, questionImageUrl, correctA, inCAOne, inCATwo, inCAThree)
+		VALUES(${content.teacher}, ${content.title}, ${content.imageUrl}, ${content.curDate}, ${content.views}, 
+		${content.question}, ${content.NOCAQs}, ${content.NOAs}, ${content.questionText}, ${content.questionImageUrl}, ${content.correctA}, ${content.inCAOne}, ${content.inCATwo}, ${content.inCAThree})`
+	await db.query(sql)
+	return true
 }
