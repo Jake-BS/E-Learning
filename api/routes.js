@@ -4,7 +4,7 @@
 import { Router } from 'https://deno.land/x/oak@v6.5.1/mod.ts'
 
 import { extractCredentials, saveFile } from './modules/util.js'
-import { login, register, getHomeData } from './modules/accounts.js'
+import { login, register, getHomeData, postContent } from './modules/accounts.js'
 import { Client } from 'https://deno.land/x/mysql/mod.ts'
 
 const router = new Router()
@@ -84,13 +84,17 @@ router.post('/api/accounts', async context => {
 })
 
 router.post('/api/content', async context => {
-	console.log('POST /api/content')
-	const body  = await context.request.body()
-	const data = await body.value
-	console.log(data)
-	await register(data)
-	context.response.status = 201
-	context.response.body = JSON.stringify({ status: 'success', msg: 'content created' })
+	try {
+		console.log('POST /api/content')
+		const body  = await context.request.body()
+		const data = await body.value
+		console.log(data)
+		await postContent(data)
+		context.response.status = 201
+		context.response.body = JSON.stringify({ status: 'success', msg: 'content created' })
+	} catch(err) {
+		console.log(err)
+	}
 })
 
 //perhaps just admin

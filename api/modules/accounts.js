@@ -132,8 +132,8 @@ export async function getHomeData(user) {
 
 export async function postContent(content) {
 	const sql = `INSERT INTO content(teacher, title, imageUrl, curDate, views, question, NOCAQs, NOAs, questionText, questionImageUrl, correctA, inCAOne, inCATwo, inCAThree)
-		VALUES(${content.teacher}, ${content.title}, ${content.imageUrl}, ${content.curDate}, ${content.views}, 
-		${content.question}, ${content.NOCAQs}, ${content.NOAs}, ${content.questionText}, ${content.questionImageUrl}, ${content.correctA}, ${content.inCAOne}, ${content.inCATwo}, ${content.inCAThree})`
+	VALUES("${content.teacher}", "${content.title}", "${content.imageUrl}", "${content.curDate}", ${content.views}, "${content.question}", ${content.NOCAQs}, ${content.NOAs}, "${content.questionText}", "${content.questionImageUrl}", "${content.correctA}", "${content.inCAOne}", "${content.inCATwo}", "${content.inCAThree}");`
+	console.log(sql)
 	await db.query(sql)
 	return true
 }
