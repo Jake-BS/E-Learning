@@ -77,10 +77,26 @@ async function homeStudent(account) {
 	//THE BELOW THREE LINES COULD PROBABLY BE WRITTEN IN A FOR LOOP
 	let sql = `SELECT COUNT(*) as countValue from ${account.user} WHERE contentOpened = "true"`
 	const openedCount = await db.query(sql)
+
 	sql = `SELECT COUNT(*) as countValue from ${account.user} WHERE testDone = "true"`
 	const testDoneCount = await db.query(sql)
+
 	sql = `SELECT COUNT(*) as countValue from ${account.user} WHERE answerCorrect = "true"`
 	const correctAnswerCount = await db.query(sql)
+
+	sql = `SELECT * FROM content`
+	const allContent = await db.query(sql)
+	let contentJsonList = []
+	for (var content of allContent) {
+		let contentJson = {
+			id: content.id,
+			title: content.title,
+			date: content.curDate,
+			teacherName: content.teacher,
+			accessed: "marshmellow"
+		}
+		contentJsonList.push(contentJson)
+	}
 	let averageScoreString = ""
 	if (testDoneCount[0].countValue > 0)
 	{
@@ -92,22 +108,7 @@ async function homeStudent(account) {
 		contentViewedCount: openedCount[0].countValue,
 		numberOfTestsAttempted: testDoneCount[0].countValue,
 		averageScore: `${averageScoreString}%`,
-		content: [
-			{
-				id: 1,
-				title: "Learning with John",
-				date: "12/12/12",
-				teacherName : "John",
-				accessed: "true"
-			},
-			{
-				id: 1,
-				title: "Learning with Bruh",
-				date: "12/12/13",
-				teacherName: "Bruh",
-				accessed: "false"
-			}
-			]
+		content: contentJsonList
 		}
 	return homeData
 }
