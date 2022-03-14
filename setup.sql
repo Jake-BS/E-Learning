@@ -41,10 +41,3 @@ CREATE TABLE IF NOT EXISTS doej(
 	contentOpened VARCHAR(5),
 	answerCorrect VARCHAR(5)
 );
-
-INSERT INTO doej(testDone, contentOpened, answerCorrect)
-	VALUES("false", "true", "false");
-INSERT INTO doej(testDone, contentOpened, answerCorrect)
-	VALUES("true", "true", "false");
-INSERT INTO doej(testDone, contentOpened, answerCorrect)
-	VALUES("true", "true", "true");

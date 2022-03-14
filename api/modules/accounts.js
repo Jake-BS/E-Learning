@@ -37,6 +37,7 @@ export async function register(credentials) {
 			contentOpened VARCHAR(5),
 			answerCorrect VARCHAR(5)
 			);`
+			//create addAllCurrentContent() and set all content values to false.
 		} else if (credentials.userType == "teacher")
 		{
 			sql = `CREATE TABLE IF NOT EXISTS ${credentials.user}(
@@ -87,13 +88,17 @@ async function homeStudent(account) {
 	sql = `SELECT * FROM content`
 	const allContent = await db.query(sql)
 	let contentJsonList = []
+	//after that look at the home teacher function, and finally look at what other requests you need.
 	for (var content of allContent) {
+		sql = `SELECT contentOpened from ${account.user} where contentID = ${content.id}`
+		let accessed = await db.query(sql)
+		console.log(accessed)
 		let contentJson = {
 			id: content.id,
 			title: content.title,
 			date: content.curDate,
 			teacherName: content.teacher,
-			accessed: "marshmellow"
+			accessed: accessed[0].contentOpened
 		}
 		contentJsonList.push(contentJson)
 	}
@@ -136,5 +141,24 @@ export async function postContent(content) {
 	VALUES("${content.teacher}", "${content.title}", "${content.imageUrl}", "${content.curDate}", ${content.views}, "${content.question}", ${content.NOCAQs}, ${content.NOAs}, "${content.questionText}", "${content.questionImageUrl}", "${content.correctA}", "${content.inCAOne}", "${content.inCATwo}", "${content.inCAThree}");`
 	console.log(sql)
 	await db.query(sql)
+	//below is for if I decide to make content ids not incremental (might be pointless)
+	//sql = "SELECT id FROM content ORDER BY id DESC LIMIT 1"
+	//const latestId = await db.query(sql)
+	addContentToStudentRows()
 	return true
+}
+
+export async function addContentToStudentRows()
+{
+	//everytime a piece of content is added
+	//each student table must have viewed, testdone, and answercorrect set to false by default.
+	let sql = "SELECT user FROM accounts"
+	const usernames = await db.query(sql)
+	for (var username of usernames)
+	{
+		console.log(username)
+		sql = `INSERT INTO ${username.user}(testDone, contentOpened, answerCorrect)
+		VALUES("false", "false", "false")`
+		await db.query(sql)
+	}
 }

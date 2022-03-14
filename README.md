@@ -7,18 +7,6 @@ There are two directories:
 
 Project settings: make sure **protect dynamic ports** is switched off.
 
-# Getting Started
-
-This template is designed to be installed inside a Codio box. To to this, open the terminal and run the following command:
-
-```
-$ curl -sL https://bit.ly/3ngLmVo | bash
-```
-
-This will configure the box ready for you to start development.
-
-> The process can take up to 15 min. Make sure you don't close the browser tab _or let your computer go into sleep mode_.
-
 To run the project:
 
 ```

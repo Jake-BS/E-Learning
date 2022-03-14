@@ -8,7 +8,6 @@ import { login } from "./api/modules/accounts.js";
 
 import router from "./api/routes.js";
 
-const port = 8080;
 
 const app = new Application();
 
@@ -137,9 +136,4 @@ app.use(router.allowedMethods());
 app.use(setHeaders);
 app.use(errorHandler);
 
-app.addEventListener(
-  "listen",
-  ({ port }) => console.log(`listening on port: ${port}`),
-);
-console.log(Deno.cwd())
-await app.listen({ port });
+export default app
