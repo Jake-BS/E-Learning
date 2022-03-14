@@ -37,7 +37,7 @@ export async function register(credentials) {
 			contentOpened VARCHAR(5),
 			answerCorrect VARCHAR(5)
 			);`
-			//create addAllCurrentContent() and set all content values to false.
+			addContentToStudentRows(credentials.user)
 		} else if (credentials.userType == "teacher")
 		{
 			sql = `CREATE TABLE IF NOT EXISTS ${credentials.user}(
@@ -51,6 +51,19 @@ export async function register(credentials) {
 		console.log(err)
 	}
 	return true
+}
+
+async function addAllCurrentContent(username)
+{
+	let sql = "SELECT * FROM content"
+	const content = await db.query(sql)
+	const nOfRows = length(content)
+	for (var _ = 0; _ < nOfRows; _++)
+	{
+		sql = `INSERT INTO ${username}(testDone, contentOpened, answerCorrect)
+		VALUES("false", "false", "false")`
+		await db.query(sql)
+	}
 }
 
 async function homeTeacher(account) {
