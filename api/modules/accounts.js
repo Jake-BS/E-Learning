@@ -1,4 +1,4 @@
-
+ 
 /* accounts.js */
 
 import { compare, genSalt, hash } from 'https://deno.land/x/bcrypt@v0.2.4/mod.ts'
@@ -67,22 +67,29 @@ async function addAllCurrentContent(username)
 }
 
 async function homeTeacher(account) {
+	let sql = `SELECT * FROM content WHERE teacher = "${account.user}"`
+	let allContent = await db.query(sql)
+	let contentJsonList = []
+	for (var content of allContent) {
+		if (content.NOAs > 0) {
+			let passrate = content.NOCAQs/content.NOAs
+			passrate = passrate.toString() + "%"
+		}
+		else 
+		{
+			let passrate = "No one has answered this"
+		}
+		let contentJson = {
+			title: content.title,
+			views: content.views,
+			questionAttempts: content.NOAs,
+			passrate: "67%"
+		}
+		contentJsonList.push(contentJson)
+	}
 	const homeData = {
 		user: `${account.user}`,
-		content: [
-			{
-				title: "Learning with John",
-				views: 123,
-				questionAttempts: 11,
-				passrate: "67%"
-			},
-			{
-				title: "Learning with John 2",
-				views: 321,
-				questionAttempts: 10,
-				passrate: "50%"
-			}
-		]
+		content: contentJsonList
 	}
 	return homeData
 }
@@ -165,7 +172,7 @@ export async function addContentToStudentRows()
 {
 	//everytime a piece of content is added
 	//each student table must have viewed, testdone, and answercorrect set to false by default.
-	let sql = "SELECT user FROM accounts"
+	let sql = `SELECT user FROM accounts WHERE userType = "student"`
 	const usernames = await db.query(sql)
 	for (var username of usernames)
 	{

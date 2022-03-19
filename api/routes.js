@@ -46,7 +46,8 @@ router.get('/api/accounts', async context => {
 	}
 })
 
-//teachers and admins should be able to access this
+//everyone should be able to access this
+//Maybe a minute of cache incase some new content is posted
 router.get('/api/accounts/:username', async context => {
 	context.response.headers.set('Allow', 'GET, PUT, DELETE')
 	try {
