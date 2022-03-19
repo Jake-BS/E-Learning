@@ -70,20 +70,21 @@ async function homeTeacher(account) {
 	let sql = `SELECT * FROM content WHERE teacher = "${account.user}"`
 	let allContent = await db.query(sql)
 	let contentJsonList = []
+	let passrate = ""
 	for (var content of allContent) {
 		if (content.NOAs > 0) {
-			let passrate = content.NOCAQs/content.NOAs
+			passrate = content.NOCAQs/content.NOAs * 100
 			passrate = passrate.toString() + "%"
 		}
 		else 
 		{
-			let passrate = "No one has answered this"
+			passrate = "No one has answered this"
 		}
 		let contentJson = {
 			title: content.title,
 			views: content.views,
 			questionAttempts: content.NOAs,
-			passrate: "67%"
+			passrate: `${passrate}`
 		}
 		contentJsonList.push(contentJson)
 	}
@@ -126,13 +127,13 @@ async function homeStudent(account) {
 	if (testDoneCount[0].countValue > 0)
 	{
 		let averageScore = correctAnswerCount[0].countValue/testDoneCount[0].countValue
-		averageScoreString = (averageScore * 100).toString()
+		averageScoreString = (averageScore * 100).toString() + "%"
 	} else averageScoreString = "No tests completed"
 	const homeData = {
 		username: account.user,
 		contentViewedCount: openedCount[0].countValue,
 		numberOfTestsAttempted: testDoneCount[0].countValue,
-		averageScore: `${averageScoreString}%`,
+		averageScore: `${averageScoreString}`,
 		content: contentJsonList
 		}
 	return homeData
