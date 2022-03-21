@@ -14,10 +14,8 @@ export async function login(credentials) {
 	const { user, pass } = credentials
 	let sql = `SELECT user FROM accounts WHERE user="${user}";`
 	let records = await db.query(sql)
-	//if(!records[0].count) throw new Error(`username "${user}" not found`)
 	sql = `SELECT pass FROM accounts WHERE user = "${user}";`
 	records = await db.query(sql)
-	sql = `SELECT pass FROM accounts WHERE user = "${user}";`
 	const valid = await compare(pass, records[0].pass)
 	if(valid === false) throw new Error(`invalid password for account "${user}"`)
 	return user
@@ -182,4 +180,29 @@ export async function addContentToStudentRows()
 		VALUES("false", "false", "false")`
 		await db.query(sql)
 	}
+}
+
+export async function getContentData(contentId)
+{
+	const sql = `SELECT * FROM content WHERE id = ${contentId}`
+	const response = await db.query(sql)
+	const contentData = response[0]
+	const contentJson = 
+	{
+    "teacher": contentData.teacher,
+    "title": contentData.title,
+    "imageUrl": contentData.imageUrl,
+    "curDate": contentData.curDate,
+    "views": contentData.views,
+    "question": contentData.question,
+    "NOCAQs": contentData.NOCAQs,
+    "NOAs": contentData.NOAs,
+    "questionText": contentData.questionText,
+    "questionImageUrl": contentData.questionImageUrl,
+    "correctA": contentData.correctA,
+    "inCAOne": contentData.inCAOne,
+    "inCATwo": contentData.inCATwo,
+    "inCAThree": contentData.inCAThree
+	}
+	return contentJson
 }

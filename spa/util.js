@@ -21,7 +21,7 @@ export async function triggerPageChange() {
 	console.log(`trying to load page: ${page}`)
 	// get a reference to the correct template element
 	const template = document.querySelector(`template#${page}`) ?? document.querySelector('template#home')
-	const node = template.content.cloneNode(true) // get a copy of the template node
+	let node = template.content.cloneNode(true) // get a copy of the template node
 	try {
 		const module = await import(`./js/${page}.js`)
 		await module.setup(node) // the setup script may need to modify the template fragment before it is displayed

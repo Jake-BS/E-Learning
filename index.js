@@ -5,11 +5,17 @@ import { Application, send, Status } from "https://deno.land/x/oak@v6.5.1/mod.ts
 // import { Md5 } from 'https://deno.land/std@0.89.0/hash/md5.ts'
 import { extractCredentials, getEtag, setHeaders } from "./api/modules/util.js";
 import { login } from "./api/modules/accounts.js";
+import { oakCors } from "https://deno.land/x/cors/mod.ts";
 
 import router from "./api/routes.js";
 
 
 const app = new Application();
+app.use(
+  oakCors({
+	origin : '*',
+  })
+);
 
 /*
  * this middleware performs a series of checks on all API calls and sends the correct response

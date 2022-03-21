@@ -4,8 +4,9 @@
 import { Router } from 'https://deno.land/x/oak@v6.5.1/mod.ts'
 
 import { extractCredentials, saveFile } from './modules/util.js'
-import { login, register, getHomeData, postContent } from './modules/accounts.js'
+import { login, register, getHomeData, postContent, getContentData } from './modules/accounts.js'
 import { Client } from 'https://deno.land/x/mysql/mod.ts'
+
 
 const router = new Router()
 
@@ -55,6 +56,30 @@ router.get('/api/accounts/:username', async context => {
 		//the below line is currently hard coded but should depend on what type the user id is associated with in the db.
 		context.response.status = 200
 		context.response.body = JSON.stringify(accountHomeData, null, 2)
+	} catch(err) {
+		console.log(err)
+		context.response.status = 400
+		context.response.body = JSON.stringify(
+			{
+				errors: [
+					{
+						title: 'a problem occurred',
+						detail: err.message
+					}
+				]
+			}
+		)
+	}
+	
+})
+
+router.get('/api/content/:id', async context => {
+	context.response.headers.set('Allow', 'GET, PUT, DELETE')
+	try {
+		const contentData = await getContentData(context.params.id)
+		//the below line is currently hard coded but should depend on what type the user id is associated with in the db.
+		context.response.status = 200
+		context.response.body = JSON.stringify(contentData, null, 2)
 	} catch(err) {
 		console.log(err)
 		context.response.status = 400
