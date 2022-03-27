@@ -4,7 +4,7 @@
 import { Router } from 'https://deno.land/x/oak@v6.5.1/mod.ts'
 
 import { extractCredentials, saveFile } from './modules/util.js'
-import { login, loginJWT, register, getHomeData, postContent, getContentData, verifyJWT } from './modules/accounts.js'
+import { login, loginJWT, register, getHomeData, postContent, getContentData, verifyJWT, getType } from './modules/accounts.js'
 import { Client } from 'https://deno.land/x/mysql/mod.ts'
 
 
@@ -52,8 +52,7 @@ router.get('/api/homepage', async context => {
 		const token = context.request.headers.get('Authorization')
 		const jwt = token.split(' ')[1]
 		const valid = await verifyJWT(jwt)
-		console.log(valid)
-		if (valid == "No account found with these JWT credentials" || valid == "The jwt's signature does not match the verification signature.") throw new Error(valid)
+		if (valid.substring(0, 6)== "Caught") throw new Error(valid.substring(6))
 		const accountHomeData = await getHomeData(valid)
 		//the below line is currently hard coded but should depend on what type the user id is associated with in the db.
 		context.response.status = 200
@@ -82,7 +81,7 @@ router.get('/api/content/:id', async context => {
 		const jwt = token.split(' ')[1]
 		const valid = await verifyJWT(jwt)
 		console.log(valid)
-		if (valid == "No account found with these JWT credentials" || valid == "The jwt's signature does not match the verification signature.") throw new Error(valid)
+		if (valid.substring(0, 6)== "Caught") throw new Error(valid.substring(6))
 		const contentData = await getContentData(context.params.id)
 		//the below line is currently hard coded but should depend on what type the user id is associated with in the db.
 		context.response.status = 200

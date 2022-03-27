@@ -4,7 +4,7 @@
 import { compare, genSalt, hash } from 'https://deno.land/x/bcrypt@v0.2.4/mod.ts'
 import { db } from './db.js'
 import {studentHomeSchema} from './schemas.js'
-import { create } from "https://deno.land/x/djwt@v2.4/mod.ts";
+import { create, getNumericDate } from "https://deno.land/x/djwt@v2.4/mod.ts";
 import Ajv from './ajv.js'
 import { verify } from "https://deno.land/x/djwt@v2.4/mod.ts";
 
@@ -33,13 +33,12 @@ export async function login(credentials) {
 
 export async function loginJWT(credentials, context) {
 	const { user, pass } = credentials
-	let sql = `SELECT user FROM accounts WHERE user="${user}";`
-	let records = await db.query(sql)
-	sql = `SELECT pass FROM accounts WHERE user = "${user}";`
-	records = await db.query(sql)
+	const sql = `SELECT pass FROM accounts WHERE user = "${user}";`
+	const records = await db.query(sql)
 	const valid = await compare(pass, records[0].pass)
 	if(valid) {
-		const jwt = await create({ alg: "HS512", typ: "JWT" }, { username: user }, key);
+		const validTime = 30
+		const jwt = await create({ alg: "HS512", typ: "JWT" }, { username: user, exp: getNumericDate(validTime) }, key);
 		if (jwt) {
 			const newBody= {
 				username: user,
@@ -252,18 +251,34 @@ export async function verifyJWT(jwt)
 	try {
 		const payload = await verify(jwt, key);
 		const user = payload.username
-		const sql = `SELECT * FROM accounts WHERE user = "${user}";`
-		console.log(sql)
-		const results = await db.query(sql)
-		console.log(results)
-		if (results[0].user.length > 0) {
-			console.log("returning user " + results.user)
-			return results[0].user
-		}
-		else return "No account found with these JWT credentials"
+		console.log("JWT pulled username: " + user)
+		if (user) {
+			const sql = `SELECT * FROM accounts WHERE user = "${user}";`
+			console.log(sql)
+			const results = await db.query(sql)
+			console.log(results)
+			if (results[0].user.length > 0) {
+				console.log("returning user " + results.user)
+				return results[0].user
+			}
+			else return "No account found with these JWT credentials"
+		} else throw new Error("No user credentials could be pulled from JWT token")
 	} catch(err)
 	{
-		return err.message
+		return "Caught" + err.message
 	}
-	
+}
+
+export async function getType(user)
+{
+	try {
+		const sql = `SELECT userType FROM accounts WHERE user = "${user}"`
+		const results = await db.query(sql)
+		if (results[0]) return results[0].userType
+		else throw new Error("No type found for user: " + user)
+	} catch(err)
+	{
+		return "Caught" + err.message
+	}
+}
 }
