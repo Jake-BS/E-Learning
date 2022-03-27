@@ -34,7 +34,7 @@ async function addContent(node) {
 	if(!response.ok) throw new Error('unable to make API call')
 	const res = await response.json()
 	console.log(res)
-	let template = document.querySelector('template#contentTemplate')
+	let template = document.querySelector('template#contentPreviewTemplate')
 	for(var contentJson of res.content) {
 		//console.log(contentJson.title)
 		let fragment = template.content.cloneNode(true)
@@ -46,6 +46,7 @@ async function addContent(node) {
 		console.log(fragment.querySelector('p#date').innerText)
 		fragment.querySelector('p#statusIndicator').innerText = contentJson.accessed
 		console.log(fragment.querySelector('p#statusIndicator').innerText)
+		fragment.querySelector('a#viewContent').setAttribute('href', `./content/${contentJson.id}`)
 		node.appendChild(fragment)
 	}
 	//return node

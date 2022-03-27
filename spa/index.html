@@ -56,13 +56,25 @@
 			<p><button type="submit">Upload</button></p>
 		</form>
 	</template>
-	<template id="contentTemplate">
+	<template id="contentPreviewTemplate">
 		<section>
 			<h2></h2>
 			<p id="date"></p>
 			<p id="teacherName"></p>
 			<p id="statusIndicator"></p>
-			<p id="viewContent">View Content</p>
+			<p><a id="viewContent">View Content</a></p>
+		</section>
+	</template>
+	<template id="contentTemplate">
+		<section>
+			<h2 id=title></h2>
+			<p id="text"></p>
+			<select id="test" multiple>
+  				<option value="one" id="one">one</option>
+  				<option value="two" id="two">two</option>
+  				<option value="three" id="three">three</option>
+			</select>
+			<p id="teacherName"></p>
 		</section>
 	</template>
 </html>

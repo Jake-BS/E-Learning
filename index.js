@@ -7,6 +7,7 @@ import { extractCredentials, getEtag, setHeaders } from "./api/modules/util.js";
 import { login } from "./api/modules/accounts.js";
 import { oakCors } from "https://deno.land/x/cors/mod.ts";
 
+
 import router from "./api/routes.js";
 
 
@@ -65,9 +66,12 @@ app.use(async (context, next) => {
 			const token = context.request.headers.get('Authorization')
 			console.log(`auth: ${token}`)
 			try {
-				const credentials = extractCredentials(token)
-				console.log(credentials)
-				await login(credentials)
+				if (context.request.url.pathname.includes('/account'))
+				{
+					const credentials = extractCredentials(token)
+					console.log(credentials)
+					await login(credentials)
+				}
 			} catch(err) {
 				console.log('ERROR')
 				console.log(err)

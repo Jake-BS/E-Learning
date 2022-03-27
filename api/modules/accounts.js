@@ -4,11 +4,21 @@
 import { compare, genSalt, hash } from 'https://deno.land/x/bcrypt@v0.2.4/mod.ts'
 import { db } from './db.js'
 import {studentHomeSchema} from './schemas.js'
+import { create } from "https://deno.land/x/djwt@v2.4/mod.ts";
 import Ajv from './ajv.js'
+import { verify } from "https://deno.land/x/djwt@v2.4/mod.ts";
 
 const saltRounds = 10
 const salt = await genSalt(saltRounds)
 const ajv = new Ajv({allErrors: true})
+
+//Creates the key for the JWT token
+const key = await crypto.subtle.generateKey(
+  { name: "HMAC", hash: "SHA-512" },
+  true,
+  ["sign", "verify"],
+);
+
 
 export async function login(credentials) {
 	const { user, pass } = credentials
@@ -19,6 +29,36 @@ export async function login(credentials) {
 	const valid = await compare(pass, records[0].pass)
 	if(valid === false) throw new Error(`invalid password for account "${user}"`)
 	return user
+}
+
+export async function loginJWT(credentials, context) {
+	const { user, pass } = credentials
+	let sql = `SELECT user FROM accounts WHERE user="${user}";`
+	let records = await db.query(sql)
+	sql = `SELECT pass FROM accounts WHERE user = "${user}";`
+	records = await db.query(sql)
+	const valid = await compare(pass, records[0].pass)
+	if(valid) {
+		const jwt = await create({ alg: "HS512", typ: "JWT" }, { username: user }, key);
+		if (jwt) {
+			const newBody= {
+				username: user,
+				jwt
+			}
+			return newBody
+		} else {
+			const newBody = {
+				message: "Internal server error"
+			}
+		}
+	}
+	if(valid === false) {
+		const newBody = 
+		{
+			message: `invalid password for account "${user}"`
+		}
+	}
+	return newBody
 }
 
 export async function register(credentials) {
@@ -55,7 +95,7 @@ async function addAllCurrentContent(username)
 {
 	let sql = "SELECT * FROM content"
 	const content = await db.query(sql)
-	const nOfRows = length(content)
+	const nOfRows = content.length
 	for (var _ = 0; _ < nOfRows; _++)
 	{
 		sql = `INSERT INTO ${username}(testDone, contentOpened, answerCorrect)
@@ -205,4 +245,25 @@ export async function getContentData(contentId)
     "inCAThree": contentData.inCAThree
 	}
 	return contentJson
+}
+
+export async function verifyJWT(jwt)
+{
+	try {
+		const payload = await verify(jwt, key);
+		const user = payload.username
+		const sql = `SELECT * FROM accounts WHERE user = "${user}";`
+		console.log(sql)
+		const results = await db.query(sql)
+		console.log(results)
+		if (results[0].user.length > 0) {
+			console.log("returning user " + results.user)
+			return results[0].user
+		}
+		else return "No account found with these JWT credentials"
+	} catch(err)
+	{
+		return err.message
+	}
+	
 }
