@@ -21,13 +21,13 @@ export async function setup(node) {
 
 // this example loads the data from a JSON file stored in the uploads directory
 async function addContent(node) {
-	const url = "https://partner-parent-8080.codio-box.uk/api/accounts/Jake"
+	const url = "https://partner-parent-8080.codio-box.uk/api/homepage"
 	const options = {
 		methods: "GET",
 		headers: 
 		{
 			'Content-Type': "application/vnd.api+json",
-			'Authorization': "Basic SmFrZTpwNDU1dzByZDI="
+			'Authorization': "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRvZWoiLCJleHAiOjE2NDg0NjMxMDh9.ga_VXOohHMFP83OdwiAfrjz1sfuh_hP1Av4MDEWHrF1t8OGbcRMDA79REAvTznty4z3FpKJf7Ly8bnDw5R35EA"
 		}
 	}
 	const response = await fetch(url, options)

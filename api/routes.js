@@ -4,7 +4,7 @@
 import { Router } from 'https://deno.land/x/oak@v6.5.1/mod.ts'
 
 import { extractCredentials, saveFile } from './modules/util.js'
-import { login, loginJWT, register, getHomeData, postContent, getContentData, verifyJWT, getType } from './modules/accounts.js'
+import { login, loginJWT, register, getHomeData, postContent, getContentData, verifyJWT, getType, viewContent, answerQuestion } from './modules/accounts.js'
 import { Client } from 'https://deno.land/x/mysql/mod.ts'
 
 
@@ -83,6 +83,8 @@ router.get('/api/content/:id', async context => {
 		console.log(valid)
 		if (valid.substring(0, 6)== "Caught") throw new Error(valid.substring(6))
 		const contentData = await getContentData(context.params.id)
+		const viewed = await viewContent(context.params.id, valid)
+		if (viewed) console.log("Content has been viewed")
 		//the below line is currently hard coded but should depend on what type the user id is associated with in the db.
 		context.response.status = 200
 		context.response.body = JSON.stringify(contentData, null, 2)
@@ -105,14 +107,40 @@ router.get('/api/content/:id', async context => {
 
 
 //anyone should be able to create an account
-router.post('/api/accounts', async context => {
-	console.log('POST /api/accounts')
-	const body  = await context.request.body()
-	const data = await body.value
-	console.log(data)
-	await register(data)
-	context.response.status = 201
-	context.response.body = JSON.stringify({ status: 'success', msg: 'account created' })
+router.post('/api/register', async context => {
+	console.log('POST /api/register')
+	const token = context.request.headers.get('Authorization')
+	console.log(`auth: ${token}`)
+	try {
+		const credentials = extractCredentials(token)
+		const body  = await context.request.body()
+		const bodyData = await body.value
+		const data = 
+		{
+			user: credentials.user,
+			pass: credentials.pass,
+			userType: bodyData.userType,
+			isAdmin: bodyData.isAdmin
+		}
+		console.log(data)
+		await register(data)
+		context.response.status = 201
+		context.response.body = JSON.stringify({ status: 'success', msg: 'account created' })
+	} catch(err) {
+		console.log(err)
+		context.response.status = 400
+		context.response.body = JSON.stringify(
+			{
+				errors: [
+					{
+						title: 'a problem occurred',
+						detail: err.message
+					}
+				]
+			}
+		)
+	}
+	
 })
 
 router.post('/api/content', async context => {
@@ -122,6 +150,20 @@ router.post('/api/content', async context => {
 		const data = await body.value
 		console.log(data)
 		await postContent(data)
+		context.response.status = 201
+		context.response.body = JSON.stringify({ status: 'success', msg: 'content created' })
+	} catch(err) {
+		console.log(err)
+	}
+})
+
+router.post('/api/answer', async context => {
+	try {
+		console.log('POST /api/answer')
+		const body  = await context.request.body()
+		const data = await body.value
+		console.log(data)
+		await answerQuestion(data)
 		context.response.status = 201
 		context.response.body = JSON.stringify({ status: 'success', msg: 'content created' })
 	} catch(err) {

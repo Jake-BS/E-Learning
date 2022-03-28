@@ -37,7 +37,7 @@ export async function loginJWT(credentials, context) {
 	const records = await db.query(sql)
 	const valid = await compare(pass, records[0].pass)
 	if(valid) {
-		const validTime = 30
+		const validTime = 600
 		const jwt = await create({ alg: "HS512", typ: "JWT" }, { username: user, exp: getNumericDate(validTime) }, key);
 		if (jwt) {
 			const newBody= {
@@ -85,7 +85,7 @@ export async function register(credentials) {
 		console.log("Post if statement sql : " + sql)
 		await db.query(sql)
 	} catch(err) {
-		console.log(err)
+		return "Caught"+err.message
 	}
 	return true
 }
@@ -258,7 +258,7 @@ export async function verifyJWT(jwt)
 			const results = await db.query(sql)
 			console.log(results)
 			if (results[0].user.length > 0) {
-				console.log("returning user " + results.user)
+				console.log("returning user " + results[0].user)
 				return results[0].user
 			}
 			else return "No account found with these JWT credentials"
@@ -281,4 +281,27 @@ export async function getType(user)
 		return "Caught" + err.message
 	}
 }
+
+export async function viewContent(id, user)
+{
+	try {
+		const sql = `UPDATE ${user} SET contentOpened = "true" WHERE contentID = ${id};`
+		await db.query(sql)
+		return "true"
+	} catch(err)
+	{
+		return "Caught" + err.message
+	}
+}
+
+export async function answerQuestion(id, user)
+{
+	try {
+		const sql = `UPDATE ${user} SET contentOpened = "true" WHERE contentID = ${id};`
+		await db.query(sql)
+		return "true"
+	} catch(err)
+	{
+		return "Caught" + err.message
+	}
 }

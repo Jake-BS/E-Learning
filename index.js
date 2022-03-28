@@ -66,7 +66,7 @@ app.use(async (context, next) => {
 			const token = context.request.headers.get('Authorization')
 			console.log(`auth: ${token}`)
 			try {
-				if (context.request.url.pathname.includes('/account'))
+				if (context.request.url.pathname.includes('/accounts'))
 				{
 					const credentials = extractCredentials(token)
 					console.log(credentials)
