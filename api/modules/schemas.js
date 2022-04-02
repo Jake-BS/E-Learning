@@ -1,3 +1,4 @@
+//Probably only need schemas for post requests but will keep these just incase
 const studentHomeSchema = {
     type: "object",
       properties: {
@@ -40,15 +41,7 @@ const studentHomeSchema = {
     required: ["username", "contentViewedCount", "numberOfTestsAttempted", "averageScore", "content"]
   }
 
-const answerQuestionSchema = {
-  type: "object",
-  properties: {
-    answer: {
-      type: "string"
-    }
-  },
-  required: ["answer"]
-}
+
 const teacherSchema = {
   schema: {
     type: "object",
@@ -125,13 +118,7 @@ const contentSchema = {
   schema: {
     type: "object",
     properties: {
-      id: {
-        type: "integer"
-      },
-      title: {
-        type: "string"
-      },
-      learningMaterial: {
+      text: {
         type: "string"
       },
       optionalImage: {
@@ -182,5 +169,16 @@ const contentSchema = {
     }
   }
 }
+
+const answerQuestionSchema = {
+  type: "object",
+  properties: {
+    answer: {
+      type: "string"
+    }
+  },
+  required: ["answer"]
+}
+
 
 export {studentHomeSchema, teacherSchema, contentSchema, answerQuestionSchema};

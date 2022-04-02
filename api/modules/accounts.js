@@ -203,8 +203,8 @@ export async function postContent(content, user) {
 		var today = new Date();
 
 		var curDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-		sql = `INSERT INTO content(teacher, title, imageUrl, curDate, views, question, NOCAQs, NOAs, questionText, questionImageUrl, correctA, inCAOne, inCATwo, inCAThree)
-		VALUES("${user}", "${content.title}", "${content.imageUrl}", "${curDate}", 0, "${content.question}", 0, 0, "${content.questionText}", "${content.questionImageUrl}", "${content.correctA}", "${content.inCAOne}", "${content.inCATwo}", "${content.inCAThree}");`
+		sql = `INSERT INTO content(text, teacher, title, imageUrl, curDate, views, NOCAQs, NOAs)
+		VALUES("${content.text}", "${user}", "${content.title}", "${content.imageUrl}", "${curDate}", 0, 0, 0);`
 		console.log(sql)
 		await db.query(sql)
 		await addContentToStudentRows()
@@ -350,11 +350,26 @@ export async function answerQuestion(id, user, answer)
 	}
 }
 
+
+//link this up to a route and then do the edit function and route
+export async function addQuestion(user, newContent, id)
+{
+	let sql = `SELECT teacher FROM content WHERE id = ${id}`
+	const contentResults = await db.query(sql)
+	if (contentResults[0].teacher == user)
+	{
+		sql = `UPDATE content SET question = "${newContent.question}, questionText = "${newContent.questionText}", questionImageUrl = "${newContent.questionImageUrl}, correctA = "${newContent.correctA}, inCAOne = "${newContent.inCAOne}, inCATwo = "${newContent.inCATwo}, inCAThree = "${newContent.inCAThree}"`
+		await db.query(sql)
+		return "added"
+	}
+	"unauthorized" 
+}
+
 async function encode(theString)
 {
 
 }
 async function decode(theString)
 {
-	
+
 }
