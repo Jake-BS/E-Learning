@@ -6,7 +6,9 @@ import { Router } from 'https://deno.land/x/oak@v6.5.1/mod.ts'
 import { extractCredentials, saveFile } from './modules/util.js'
 import { login, loginJWT, register, getHomeData, postContent, getContentData, verifyJWT, getType, viewContent, answerQuestion } from './modules/accounts.js'
 import { Client } from 'https://deno.land/x/mysql/mod.ts'
-
+import {answerQuestionSchema} from './modules/schemas.js'
+import Ajv from './modules/ajv.js'
+const ajv = new Ajv({allErrors: true})
 
 
 const router = new Router()
@@ -51,9 +53,9 @@ router.get('/api/homepage', async context => {
 	try {
 		const token = context.request.headers.get('Authorization')
 		const jwt = token.split(' ')[1]
-		const valid = await verifyJWT(jwt)
-		if (valid.substring(0, 6)== "Caught") throw new Error(valid.substring(6))
-		const accountHomeData = await getHomeData(valid)
+		const validUser = await verifyJWT(jwt)
+		if (validUser.substring(0, 6)== "Caught") throw new Error(validUser.substring(6))
+		const accountHomeData = await getHomeData(validUser)
 		//the below line is currently hard coded but should depend on what type the user id is associated with in the db.
 		context.response.status = 200
 		context.response.body = JSON.stringify(accountHomeData, null, 2)
@@ -146,26 +148,64 @@ router.post('/api/register', async context => {
 router.post('/api/content', async context => {
 	try {
 		console.log('POST /api/content')
+		const token = context.request.headers.get('Authorization')
+		const jwt = token.split(' ')[1]
+		const validUser = await verifyJWT(jwt)
+		console.log(validUser)
+		if (validUser.substring(0, 6)== "Caught") throw new Error(validUser.substring(6))
 		const body  = await context.request.body()
 		const data = await body.value
 		console.log(data)
-		await postContent(data)
-		context.response.status = 201
-		context.response.body = JSON.stringify({ status: 'success', msg: 'content created' })
+		const postResult = await postContent(data, validUser)
+		if (postResult == true)
+		{
+			context.response.status = 201
+			context.response.body = JSON.stringify({ status: 'success', msg: 'content created' })
+		}
+		else 
+		{
+			context.response.status = 401
+			context.response.body = JSON.stringify({ status: 'Failure', msg: 'You must be a teacher to post content' })
+		}
+		
 	} catch(err) {
 		console.log(err)
 	}
 })
 
-router.post('/api/answer', async context => {
+router.post('/api/answer/:id', async context => {
 	try {
+		const token = context.request.headers.get('Authorization')
+		const jwt = token.split(' ')[1]
+		const validUser = await verifyJWT(jwt)
+		console.log(validUser)
+		if (validUser.substring(0, 6)== "Caught") throw new Error(validUser.substring(6))
 		console.log('POST /api/answer')
 		const body  = await context.request.body()
 		const data = await body.value
-		console.log(data)
-		await answerQuestion(data)
-		context.response.status = 201
-		context.response.body = JSON.stringify({ status: 'success', msg: 'content created' })
+		const validate = ajv.compile(answerQuestionSchema)
+		const valid = validate(body)
+		console.log(validUser + " answering question " + context.params.id + " with " + data.answer)
+		if (!valid) 
+		{
+			context.response.body = JSON.stringify({ status: 'failure', msg: `Data sent does not match the answer schema, please format like {answer: Your answer}` })
+			context.response.status = 400
+		}
+		else 
+		{
+			const response = await answerQuestion(context.params.id, validUser, data.answer)
+			if (response == "answered") {
+			context.response.status = 201
+			context.response.body = JSON.stringify({ status: 'success', msg: 'Question answered' })
+			}
+			else if (response == "previously") 
+			{
+				context.response.body = JSON.stringify({ status: 'failure', msg: 'Question already answered' })
+				context.response.status = 400
+			}
+		}
+		
+		
 	} catch(err) {
 		console.log(err)
 	}

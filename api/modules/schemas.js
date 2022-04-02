@@ -40,6 +40,15 @@ const studentHomeSchema = {
     required: ["username", "contentViewedCount", "numberOfTestsAttempted", "averageScore", "content"]
   }
 
+const answerQuestionSchema = {
+  type: "object",
+  properties: {
+    answer: {
+      type: "string"
+    }
+  },
+  required: ["answer"]
+}
 const teacherSchema = {
   schema: {
     type: "object",
@@ -174,4 +183,4 @@ const contentSchema = {
   }
 }
 
-export {studentHomeSchema, teacherSchema, contentSchema};
+export {studentHomeSchema, teacherSchema, contentSchema, answerQuestionSchema};

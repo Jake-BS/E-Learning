@@ -37,7 +37,7 @@ export async function loginJWT(credentials, context) {
 	const records = await db.query(sql)
 	const valid = await compare(pass, records[0].pass)
 	if(valid) {
-		const validTime = 600
+		const validTime = 3600
 		const jwt = await create({ alg: "HS512", typ: "JWT" }, { username: user, exp: getNumericDate(validTime) }, key);
 		if (jwt) {
 			const newBody= {
@@ -74,7 +74,7 @@ export async function register(credentials) {
 			contentOpened VARCHAR(5),
 			answerCorrect VARCHAR(5)
 			);`
-			addContentToStudentRows(credentials.user)
+			await addAllCurrentContent(credentials.user)
 		} else if (credentials.userType == "teacher")
 		{
 			sql = `CREATE TABLE IF NOT EXISTS ${credentials.user}(
@@ -182,28 +182,36 @@ export async function getHomeData(user) {
 	const account = accounts[0]
 	let homeData = {message: "unknown account type making request"}
 	if (account.userType === "student") {
-		homeData = homeStudent(account)
+		homeData = await homeStudent(account)
 		//Checking against schema
 		const validate = ajv.compile(studentHomeSchema)
 		const valid = validate(homeData)
 		if (!valid) console.log("Data pulled does not match the student home data schema. Validation error: " + validate.errors)
+		else console.log("Schema has validated studuent schema!")
 	} else if (account.userType == "teacher") {
 		//required data should be pulled from the user's personal table, as well as the content table.
-		homeData = homeTeacher(account)
+		homeData = await homeTeacher(account)
 	}
 	return homeData
 }
 
-export async function postContent(content) {
-	const sql = `INSERT INTO content(teacher, title, imageUrl, curDate, views, question, NOCAQs, NOAs, questionText, questionImageUrl, correctA, inCAOne, inCATwo, inCAThree)
-	VALUES("${content.teacher}", "${content.title}", "${content.imageUrl}", "${content.curDate}", ${content.views}, "${content.question}", ${content.NOCAQs}, ${content.NOAs}, "${content.questionText}", "${content.questionImageUrl}", "${content.correctA}", "${content.inCAOne}", "${content.inCATwo}", "${content.inCAThree}");`
-	console.log(sql)
-	await db.query(sql)
-	//below is for if I decide to make content ids not incremental (might be pointless)
-	//sql = "SELECT id FROM content ORDER BY id DESC LIMIT 1"
-	//const latestId = await db.query(sql)
-	addContentToStudentRows()
-	return true
+export async function postContent(content, user) {
+	let sql = `SELECT * FROM accounts WHERE user = "${user}"`
+	const results = await db.query(sql)
+	const userType = results[0].userType
+	if (userType == "teacher") {
+		var today = new Date();
+
+		var curDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+		sql = `INSERT INTO content(teacher, title, imageUrl, curDate, views, question, NOCAQs, NOAs, questionText, questionImageUrl, correctA, inCAOne, inCATwo, inCAThree)
+		VALUES("${user}", "${content.title}", "${content.imageUrl}", "${curDate}", 0, "${content.question}", 0, 0, "${content.questionText}", "${content.questionImageUrl}", "${content.correctA}", "${content.inCAOne}", "${content.inCATwo}", "${content.inCAThree}");`
+		console.log(sql)
+		await db.query(sql)
+		await addContentToStudentRows()
+		return true
+	}
+	return false
+	
 }
 
 export async function addContentToStudentRows()
@@ -285,8 +293,19 @@ export async function getType(user)
 export async function viewContent(id, user)
 {
 	try {
-		const sql = `UPDATE ${user} SET contentOpened = "true" WHERE contentID = ${id};`
-		await db.query(sql)
+		const userType = await getType(user)
+		if (userType == "student")
+		{
+			let sql = `SELECT contentOpened FROM ${user} WHERE id=${id}`
+			const result = await db.query(sql)
+			if (result[0].contentOpened == "false")
+			{
+				sql = `UPDATE content SET views = views+1 WHERE id=${id}`
+				await db.query(sql)
+			}
+			sql = `UPDATE ${user} SET contentOpened = "true" WHERE contentID = ${id};`
+			await db.query(sql)
+		} 
 		return "true"
 	} catch(err)
 	{
@@ -294,14 +313,48 @@ export async function viewContent(id, user)
 	}
 }
 
-export async function answerQuestion(id, user)
+//TEST THIS FUNCTION AND THE CALLED FROM ROUTE
+export async function answerQuestion(id, user, answer)
 {
 	try {
-		const sql = `UPDATE ${user} SET contentOpened = "true" WHERE contentID = ${id};`
-		await db.query(sql)
-		return "true"
+		let sql = `SELECT * FROM content WHERE id = ${id}`
+		const correctA = await db.query(sql)
+		console.log("Correct answer is " + correctA[0].correctA)
+		sql = `SELECT testDone FROM ${user}`
+		const results = await db.query(sql)
+		if (results[0].testDone == "true") return "previously"
+		else
+		{
+			if (correctA[0].correctA==answer)
+			{
+				sql = `UPDATE ${user} SET testDone="true", answerCorrect="true" WHERE contentID=${id}`
+				console.log(sql)
+				await db.query(sql)
+				sql = `UPDATE content SET NOCAQs=NOCAQs+1, NOAs=NOAs+1 WHERE id=${id}`
+				console.log(sql)
+				await db.query(sql)
+			} else {
+				sql = `UPDATE ${user} SET testDone="true", answerCorrect="false" WHERE contentID=${id}`
+				console.log(sql)
+				await db.query(sql)
+				sql = `UPDATE content SET NOAs=NOAs+1 WHERE id=${id}`
+				console.log(sql)
+				await db.query(sql)
+			}
+		return "answered"
+		}
+		
 	} catch(err)
 	{
 		return "Caught" + err.message
 	}
+}
+
+async function encode(theString)
+{
+
+}
+async function decode(theString)
+{
+	
 }
