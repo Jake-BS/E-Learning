@@ -21,34 +21,72 @@ export async function setup(node) {
 
 // this example loads the data from a JSON file stored in the uploads directory
 async function addContent(node) {
+	var userType = "teacher"
 	const url = "https://partner-parent-8080.codio-box.uk/api/homepage"
 	const options = {
 		methods: "GET",
 		headers: 
 		{
 			'Content-Type': "application/vnd.api+json",
-			'Authorization': "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBlcnNvbiIsImV4cCI6MTY0OTAyMzkyNX0.BVaSbFB6G7UYfewWikh2r6taOQ9bXsutKAUO-IqzLjU0RkAF7tdX6J__eAU_R-RcXzTJqi9GwzpLnYstV5VmVg"
+			'Authorization': "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlYWNoZXIiLCJleHAiOjE2NDkwMjg5Njd9.ibJJf05qBOhMfU5L70Xb05kLZzU5zJRaK4QeWL_KBiV-KadtFCXgXVQ09zAaDIxXmeu52JWKEDt6c0qR8bhx8Q"
 		}
 	}
 	const response = await fetch(url, options)
 	if(!response.ok) throw new Error('unable to make API call')
 	const res = await response.json()
 	console.log(res)
+	if (userType == "student") await homeStudent(res, node)
+	else if (userType == "teacher") 
+	{
+		let button = document.createElement('button')
+		button.innerText= "Add Content"
+		button.addEventListener('click', async() => goToAddContent())
+		const main = document.querySelector('main')
+		main.appendChild(button)
+		await homeTeacher(res, node)
+	}
+}
+
+async function homeStudent(res, node)
+{
 	let template = document.querySelector('template#contentPreviewTemplate')
-	for(var contentJson of res.content) {
+	for(var [index, contentJson] of (res.content).entries()) {
 		//console.log(contentJson.title)
 		let fragment = template.content.cloneNode(true)
 		fragment.querySelector('h2').innerText = contentJson.title
 		console.log(fragment.querySelector('h2').innerText)
-		fragment.querySelector('p#teacherName').innerText = contentJson.teacherName
-		console.log(fragment.querySelector('p#teacherName').innerText)
-		fragment.querySelector('p#date').innerText = contentJson.date
-		console.log(fragment.querySelector('p#date').innerText)
-		fragment.querySelector('p#statusIndicator').innerText = contentJson.accessed
-		console.log(fragment.querySelector('p#statusIndicator').innerText)
-		fragment.querySelector('a#viewContent').setAttribute('href', `./content/${contentJson.id}`)
+		fragment.querySelector('p#one').innerText = contentJson.teacherName
+		console.log(fragment.querySelector('p#one').innerText)
+		fragment.querySelector('p#two').innerText = contentJson.date
+		console.log(fragment.querySelector('p#two').innerText)
+		fragment.querySelector('p#three').innerText = contentJson.accessed
+		console.log(fragment.querySelector('p#three').innerText)
+		fragment.querySelector('a#viewContent').setAttribute('href', `./content/${index+1}`)
 		node.appendChild(fragment)
 	}
-	//return node
 }
 
+async function homeTeacher(res, node)
+{
+	let template = document.querySelector('template#contentPreviewTemplate')
+	for(var [index, contentJson] of (res.content).entries()) {
+		//console.log(contentJson.title)
+		let fragment = template.content.cloneNode(true)
+		fragment.querySelector('h2').innerText = contentJson.title
+		console.log(fragment.querySelector('h2').innerText)
+		fragment.querySelector('p#one').innerText = "views: " + String(contentJson.views)
+		console.log(fragment.querySelector('p#two').innerText)
+		fragment.querySelector('p#three').innerText = "attempts: "+ String(contentJson.questionAttempts)
+		console.log(fragment.querySelector('p#three').innerText)
+		fragment.querySelector('p#four').innerText = "passrate: " + contentJson.passrate
+		console.log(fragment.querySelector('p#four').innerText)
+		fragment.querySelector('a#viewContent').setAttribute('href', `./content/${index+1}`)
+		node.appendChild(fragment)
+	}
+}
+
+
+async function goToAddContent()
+{
+	console.log("changed page to add content")
+}
