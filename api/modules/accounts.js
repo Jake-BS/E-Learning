@@ -241,7 +241,6 @@ export async function getContentData(contentId)
     "imageUrl": contentData.imageUrl,
     "curDate": contentData.curDate,
     "views": contentData.views,
-    "question": contentData.question,
     "NOCAQs": contentData.NOCAQs,
     "NOAs": contentData.NOAs,
     "questionText": contentData.questionText,
@@ -352,22 +351,21 @@ export async function answerQuestion(id, user, answer)
 
 
 //link this up to a route and then do the edit function and route
-export async function addQuestion(user, newContent, id)
+export async function addQuestion(id, user, newContent)
 {
 	let sql = `SELECT teacher FROM content WHERE id = ${id}`
 	const contentResults = await db.query(sql)
 	if (contentResults[0].teacher == user)
 	{
-		sql = `UPDATE content SET question = "${newContent.question}, questionText = "${newContent.questionText}", questionImageUrl = "${newContent.questionImageUrl}, correctA = "${newContent.correctA}, inCAOne = "${newContent.inCAOne}, inCATwo = "${newContent.inCATwo}, inCAThree = "${newContent.inCAThree}"`
+		sql = `UPDATE content SET questionText = "${newContent.questionText}", questionImageUrl = "${newContent.questionImageUrl}", correctA = "${newContent.correctA}", inCAOne = "${newContent.inCAOne}", inCATwo = "${newContent.inCATwo}", inCAThree = "${newContent.inCAThree}"`
 		await db.query(sql)
 		return "added"
 	}
-	"unauthorized" 
+	return "unauthorized" 
 }
 
 async function encode(theString)
 {
-
 }
 async function decode(theString)
 {

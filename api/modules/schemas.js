@@ -114,60 +114,21 @@ const teacherSchema = {
   }
 }
 
-const contentSchema = {
-  schema: {
-    type: "object",
-    properties: {
-      text: {
-        type: "string"
-      },
-      optionalImage: {
-        type: "string"
-      },
-      dateTime: {
-        type: "string"
-      },
-      views: {
-        type: "integer"
-      },
-      question: {
-        type: "object",
-        properties: {
-          numberOfCorrectlyAnswered: {
-            type: "integer"
-          },
-          numberOfAnswers: {
-            type: "integer"
-          },
-          text: {
-            type: "string"
-          },
-          optionalImage: {
-            type: "string"
-          },
-          answers: {
-            type: "object",
-            properties: {
-              correctAnswer: {
-                type: "string"
-              },
-              incorrectAnswers: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    text: {
-                      type: "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+//Important POST method schemas
+const postContentSchema = {
+  type: "object",
+  properties: {
+    text: {
+      type: "string"
+    },
+    title: {
+      type: "string"
+    },
+    imageUrl: {
+      type: "string"
     }
-  }
+  },
+  required: ["text", "title", "imageUrl"]
 }
 
 const answerQuestionSchema = {
@@ -180,5 +141,29 @@ const answerQuestionSchema = {
   required: ["answer"]
 }
 
+const questionSchema = {
+  type: "object",
+  properties: {
+    questionText: {
+      type: "string"
+    },
+    questionImageUrl: {
+      type: "string"
+    },
+    correctA: {
+      type: "string"
+    },
+    inCAOne: {
+      type: "string"
+    },
+    inCATwo: {
+      type: "string"
+    },
+    inCAThree: {
+      type: "string"
+    }
+  },
+  required: ["questionText", "questionImageUrl", "correctA", "inCAOne", "inCATwo", "inCAThree"]
+}
 
-export {studentHomeSchema, teacherSchema, contentSchema, answerQuestionSchema};
+export {studentHomeSchema, teacherSchema, postContentSchema, answerQuestionSchema, questionSchema};
