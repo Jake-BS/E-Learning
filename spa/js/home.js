@@ -27,7 +27,7 @@ async function addContent(node) {
 		headers: 
 		{
 			'Content-Type': "application/vnd.api+json",
-			'Authorization': "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRvZWoiLCJleHAiOjE2NDg0NjMxMDh9.ga_VXOohHMFP83OdwiAfrjz1sfuh_hP1Av4MDEWHrF1t8OGbcRMDA79REAvTznty4z3FpKJf7Ly8bnDw5R35EA"
+			'Authorization': "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBlcnNvbiIsImV4cCI6MTY0OTAyMzkyNX0.BVaSbFB6G7UYfewWikh2r6taOQ9bXsutKAUO-IqzLjU0RkAF7tdX6J__eAU_R-RcXzTJqi9GwzpLnYstV5VmVg"
 		}
 	}
 	const response = await fetch(url, options)

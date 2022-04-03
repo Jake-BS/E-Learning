@@ -1,7 +1,7 @@
 
 /* routes.js */
 
-import { Router } from 'https://deno.land/x/oak@v6.5.1/mod.ts'
+import { Router, Status } from 'https://deno.land/x/oak@v6.5.1/mod.ts'
 
 import { extractCredentials, saveFile } from './modules/util.js'
 import { login, loginJWT, register, getHomeData, postContent, getContentData, verifyJWT, getType, viewContent, answerQuestion, addQuestion } from './modules/accounts.js'
@@ -23,25 +23,56 @@ router.get('/', async context => {
 
 //HATEOAS
 router.get('/api/', async context =>{
-	context.response.headers.set("Allow", 'GET')
-	const data = {
-		name: 'E-Learning API',
-		desc: 'A REST API to provide the backend for a Git E-Learning website',
-		links: [
-			{
-				name: 'login',
-				desc: 'GET to provides user with jwt token to access other API routes/resources',
-				href: `https://${context.host}/api/account`,
-			},
-			{
-				name: 'movies',
-				desc: 'a list of movies',
-				href: `https://${context.host}/movies`,
-			}
+	try {
+		context.response.headers.set("Allow", 'GET')
+		const data = {
+			name: 'E-Learning API',
+			desc: 'A REST API to provide the backend for a Git E-Learning website',
+			links: [
+				{
+					name: 'login',
+					desc: 'GET to provide user with jwt token to access other API routes/resources',
+					href: `/api/account`,
+				},
+				{
+					name: 'register',
+					desc: 'POST to register a new account',
+					href: `/api/register`,
+				},
+				{
+					name: 'homepage',
+					desc: 'GET to recieve resource for the homepage',
+					href: `/api/homepage`,
+				},
+				{
+					name: 'content with id',
+					desc: 'GET to recieve resource for a specific piece of content based on id given at the end of URL',
+					href: `/api/content/replacethiswithid`,
+				},
+				{
+					name: 'create content',
+					desc: 'POST as a teacher to create a piece of content',
+					href: `/api/content`,
+				},
+    	        {
+					name: 'answer question with appropriate contentid',
+					desc: 'POST to answer the question of a piece of content',
+					href: `/api/answer/replacethiswithid`,
+				},
+    	        {
+					name: 'add question to content',
+					desc: 'POST as a teacher to add a question to a piece of content',
+					href: `/api/question/replacethiswithid`,
+				}
+
 		]
+		}
+		context.status = Status.OK
+		context.response.body = JSON.stringify(data, null, 2)
+	} catch(err)
+	{
+		console.log(err)
 	}
-	context.status = Status.OK
-	context.response.body = JSON.stringify(data, null, 2
 })
 //All roles
 router.get('/api/accounts', async context => {
@@ -62,7 +93,7 @@ router.get('/api/accounts', async context => {
 //everyone should be able to access this
 //Maybe a minute of cache incase some new content is posted
 router.get('/api/homepage', async context => {
-	context.response.headers.set('Allow', 'GET, PUT, DELETE')
+	context.response.headers.set('Allow', 'GET')
 	try {
 		const token = context.request.headers.get('Authorization')
 		const jwt = token.split(' ')[1]
@@ -159,17 +190,26 @@ router.post('/api/content', async context => {
 			const body  = await context.request.body()
 			const data = await body.value
 			console.log(data)
-			const postResult = await postContent(data, validUser)
-			if (postResult == true)
+			const validate = ajv.compile(postContentSchema)
+			const valid = validate(data)
+			if (!valid)
 			{
-				context.response.status = 201
-				context.response.body = JSON.stringify({ status: 'success', msg: 'content created' })
+				context.response.body = JSON.stringify({ status: 'failure', msg: `Data sent does not match the answer schema, only fields should be text, title, and imageUrl. All fields are strings` })
+				context.response.status = 400
+			} else{
+				const postResult = await postContent(data, validUser)
+				if (postResult == true)
+				{
+					context.response.status = 201
+					context.response.body = JSON.stringify({ status: 'success', msg: 'content created' })
+				}
+				else 
+				{
+					context.response.status = 401
+					context.response.body = JSON.stringify({ status: 'Failure', msg: 'You must be a teacher to post content' })
+				}
 			}
-			else 
-			{
-				context.response.status = 401
-				context.response.body = JSON.stringify({ status: 'Failure', msg: 'You must be a teacher to post content' })
-			}
+			
 		}
 	} catch(err) {
 		console.log(err)
@@ -194,11 +234,11 @@ router.post('/api/question/:id', async context => {
 			const body  = await context.request.body()
 			const data = await body.value
 			const validate = ajv.compile(questionSchema)
-			const valid = validate(body)
+			const valid = validate(data)
 			console.log(validUser + " adding question to content " + context.params.id)
 			if (!valid) 
 			{
-				context.response.body = JSON.stringify({ status: 'failure', msg: `Data sent does not match the answer schema, please format like {answer: Your answer}` })
+				context.response.body = JSON.stringify({ status: 'failure', msg: `Data sent does not match the answer schema, only fields should be questionText, questionImageUrl, correctA, inCAOne, inCATwo, inCAThree. All fields are strings` })
 				context.response.status = 400
 			}
 			else 
@@ -238,8 +278,7 @@ router.post('/api/answer/:id', async context => {
 			const body  = await context.request.body()
 			const data = await body.value
 			const validate = ajv.compile(answerQuestionSchema)
-			const valid = validate(body)
-			console.log(validUser + " answering question " + context.params.id + " with " + data.answer)
+			const valid = validate(data)
 			if (!valid) 
 			{
 				context.response.body = JSON.stringify({ status: 'failure', msg: `Data sent does not match the answer schema, please format like {answer: Your answer}` })
@@ -247,6 +286,7 @@ router.post('/api/answer/:id', async context => {
 			}
 			else 
 			{
+				console.log(validUser + " answering question " + context.params.id + " with " + data.answer)
 				const response = await answerQuestion(context.params.id, validUser, data.answer)
 				if (response == "answered") {
 				context.response.status = 201
@@ -255,6 +295,10 @@ router.post('/api/answer/:id', async context => {
 				else if (response == "previously") 
 				{
 					context.response.body = JSON.stringify({ status: 'failure', msg: 'Question already answered' })
+					context.response.status = 400
+				} else if(response == "noQ")
+				{
+					context.response.body = JSON.stringify({ status: 'failure', msg: 'There is no question for this piece of content' })
 					context.response.status = 400
 				}
 			}

@@ -281,6 +281,7 @@ export async function getType(user)
 	try {
 		const sql = `SELECT userType FROM accounts WHERE user = "${user}"`
 		const results = await db.query(sql)
+		console.log(results[0].userType)
 		if (results[0]) return results[0].userType
 		else throw new Error("No type found for user: " + user)
 	} catch(err)
@@ -303,6 +304,7 @@ export async function viewContent(id, user)
 				await db.query(sql)
 			}
 			sql = `UPDATE ${user} SET contentOpened = "true" WHERE contentID = ${id};`
+			console.log(sql)
 			await db.query(sql)
 		} 
 		return "true"
@@ -318,6 +320,7 @@ export async function answerQuestion(id, user, answer)
 	try {
 		let sql = `SELECT * FROM content WHERE id = ${id}`
 		const correctA = await db.query(sql)
+		if (correctA[0].questionText == "None") return "noQ"
 		console.log("Correct answer is " + correctA[0].correctA)
 		sql = `SELECT testDone FROM ${user}`
 		const results = await db.query(sql)
