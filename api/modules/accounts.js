@@ -296,10 +296,11 @@ export async function viewContent(id, user)
 		const userType = await getType(user)
 		if (userType == "student")
 		{
-			let sql = `SELECT contentOpened FROM ${user} WHERE id=${id}`
+			let sql = `SELECT contentOpened FROM ${user} WHERE contentID=${id}`
 			const result = await db.query(sql)
-			if (result[0].contentOpened == "false")
+			if (result[0].contentOpened != "true")
 			{
+				console.log("adding another view")
 				sql = `UPDATE content SET views = views+1 WHERE id=${id}`
 				await db.query(sql)
 			}
