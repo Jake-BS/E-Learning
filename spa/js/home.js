@@ -39,11 +39,6 @@ async function addContent(node) {
 	if (userType == "student") await homeStudent(res, node)
 	else if (userType == "teacher") 
 	{
-		let button = document.createElement('button')
-		button.innerText= "Add Content"
-		button.addEventListener('click', async() => goToAddContent())
-		const main = document.querySelector('main')
-		main.appendChild(button)
 		await homeTeacher(res, node)
 	}
 }
@@ -96,6 +91,13 @@ async function homeTeacher(res, node)
 		})
 		node.appendChild(fragment)
 	}
+	let button = document.createElement('button')
+		button.innerText= "Add Content"
+		button.addEventListener('click', event => {
+			event.preventDefault()
+			loadPage("uploadContent")
+		})
+	node.appendChild(button)
 }
 
 

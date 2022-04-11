@@ -30,7 +30,16 @@ async function addContent(node, url, token)
 }
 
 async function questionExists(json, node)
-{console.log("There is a question")}
+{
+	let template = document.querySelector('template#contentTemplate')
+	let fragment = template.content.cloneNode(true)
+	fragment.querySelector('h2').innerText = json.title
+	console.log(fragment.querySelector('h2').innerText)
+	fragment.querySelector('textarea#text').innerText = json.text
+	fragment.querySelector('img#image').setAttribute('src', json.imageUrl)
+	console.log(json.text)
+	node.appendChild(fragment)
+}
 
 async function noQuestion(json, node)
 {
@@ -38,7 +47,9 @@ async function noQuestion(json, node)
 	let fragment = template.content.cloneNode(true)
 	fragment.querySelector('h2').innerText = json.title
 	console.log(fragment.querySelector('h2').innerText)
-	fragment.querySelector('p#text').innerText = json.text
+	fragment.querySelector('pre#text').innerText = json.text
+	fragment.querySelector('img#image').setAttribute('src', json.imageUrl)
 	console.log(json.text)
+	//fragment.querySelector('select#test').setAttribute('hidden')
 	node.appendChild(fragment)
 }

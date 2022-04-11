@@ -189,7 +189,7 @@ router.post('/api/content', async context => {
 		{
 			const body  = await context.request.body()
 			const data = await body.value
-			console.log(data)
+			console.log(data.value)
 			const validate = ajv.compile(postContentSchema)
 			const valid = validate(data)
 			if (!valid)

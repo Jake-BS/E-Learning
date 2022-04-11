@@ -46,11 +46,11 @@
 			<p><button type="submit">Create account</button></p>
 		</form>
 	</template>
-	<template id="createContentTemplate">
-		<form name="register">
-			<p><label for="title">Content title</label><br /><input type="text" name="user" placeholder="full name" /></p>
-			<p><label for="text">Text</label><br /><input type="password" name="pass" placeholder="password" /></p>
-			<p><label for="image">Image</label><br /><input type="file" id="pictureInput" name="picture" multiple /></p>
+	<template id="uploadContent">
+		<form name="uploadContent" method="post">
+			<p><label for="title">Content title</label><br /><input type="text" name="title"/></p>
+			<textarea name="text"></textarea>
+			<p><label for="image">Image</label><br /><input type="file" id="imageUrl" name="imageUrl" multiple /></p>
 			<p><button type="submit">Create content</button></p>
 		</form>
 	</template>
@@ -77,7 +77,8 @@
 	<template id="contentTemplate">
 		<section>
 			<h2 id="title"></h2>
-			<p id="text"></p>
+			<pre id="text"></pre>
+			<img id="image"></img><br/>
 			<select id="test" multiple>
   				<option value="one" id="one">one</option>
   				<option value="two" id="two">two</option>

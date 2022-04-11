@@ -8,7 +8,7 @@ export async function setup(node) {
 	try {
 		console.log(node)
 		document.querySelector('header p').innerText = 'Foobar'
-		customiseNavbar(['home', 'logout', 'foo'])
+		customiseNavbar(['home', 'logout'])
 		if(localStorage.getItem('authorization') === null) loadPage('login')
 		// there is a token in localstorage
 		node.querySelector('form').addEventListener('submit', await uploadData)
@@ -20,9 +20,9 @@ export async function setup(node) {
 async function uploadData(event) {
 	console.log('func UPLOAD DATA')
 	event.preventDefault()
-	const element = document.querySelector('input[name="file"]')
+	const element = document.querySelector('input[name="imageUrl"]')
 	console.log(element)
-	const file = document.querySelector('input[name="file"]').files[0]
+	const file = document.querySelector('input[name="imageUrl"]').files[0]
 	file.base64 = await file2DataURI(file)
 	file.user = localStorage.getItem('username')
 	console.log(file)
