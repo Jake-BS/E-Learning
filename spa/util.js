@@ -31,7 +31,7 @@ export async function triggerPageChange() {
 		if (data)
 		{
 			const querystring = data ? extractQuerystring(data) : {}
-			console.log(querystring)
+			console.log("queryString is: " + querystring.id)
 			await module.setup(node, querystring)
 		}
 		else await module.setup(node) // the setup script may need to modify the template fragment before it is displayed

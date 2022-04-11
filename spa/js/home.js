@@ -10,7 +10,6 @@ export async function setup(node) {
 		document.querySelector('header p').innerText = 'All about Git'
 		customiseNavbar(['home', 'foo', 'logout']) // navbar if logged in
 		const token = localStorage.getItem('authorization')
-		console.log(token)
 		if(token === null) customiseNavbar(['home', 'register', 'login']) //navbar if logged out
 		// add content to the page
 		await addContent(node)
@@ -21,14 +20,15 @@ export async function setup(node) {
 
 // this example loads the data from a JSON file stored in the uploads directory
 async function addContent(node) {
-	var userType = "student"
+	var userType = localStorage.getItem('userType')
 	const url = "https://partner-parent-8080.codio-box.uk/api/homepage"
+	const token = localStorage.getItem('authorization')
 	const options = {
 		methods: "GET",
 		headers: 
 		{
 			'Content-Type': "application/vnd.api+json",
-			'Authorization': "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRoZXN0dWRlbnQiLCJleHAiOjE2NDk2OTM5NjF9.5gXc2GPBECmCyfADlAMVlweUMAIDLayo3dFu6CN0WuXnW1wSfh9w4WCYPlwPHz3iMWcGNtGa0ztUoBR76R5Awg",
+			'Authorization': `Bearer ${token}`,
 			'Accept': 'application/vnd.api+json'
 		}
 	}
@@ -54,13 +54,13 @@ async function homeStudent(res, node)
 	for(var [index, contentJson] of (res.content).entries()) {
 		//console.log(contentJson.title)
 		let fragment = template.content.cloneNode(true)
-		fragment.querySelector('h2').innerText = contentJson.title
+		fragment.querySelector('h2').innerText = "Title: " + contentJson.title
 		console.log(fragment.querySelector('h2').innerText)
-		fragment.querySelector('p#one').innerText = contentJson.teacherName
+		fragment.querySelector('p#one').innerText = "Teacher: " + contentJson.teacherName
 		console.log(fragment.querySelector('p#one').innerText)
-		fragment.querySelector('p#two').innerText = contentJson.date
+		fragment.querySelector('p#two').innerText = "Date created: " + contentJson.date
 		console.log(fragment.querySelector('p#two').innerText)
-		fragment.querySelector('p#three').innerText = contentJson.accessed
+		fragment.querySelector('p#three').innerText = "Opened: " + contentJson.accessed
 		console.log(fragment.querySelector('p#three').innerText)
 		let fragLink = fragment.querySelector('a#viewContent')
 		let link = `content-id=${index+1}`

@@ -33,7 +33,7 @@ export async function login(credentials) {
 
 export async function loginJWT(credentials, context) {
 	const { user, pass } = credentials
-	const sql = `SELECT pass FROM accounts WHERE user = "${user}";`
+	const sql = `SELECT pass, userType FROM accounts WHERE user = "${user}";`
 	const records = await db.query(sql)
 	const valid = await compare(pass, records[0].pass)
 	if(valid) {
@@ -42,6 +42,7 @@ export async function loginJWT(credentials, context) {
 		if (jwt) {
 			const newBody= {
 				username: user,
+				userType: records[0].userType,
 				jwt
 			}
 			return newBody
@@ -238,6 +239,7 @@ export async function getContentData(contentId)
 	{
     "teacher": contentData.teacher,
     "title": contentData.title,
+	"text": contentData.text,
     "imageUrl": contentData.imageUrl,
     "curDate": contentData.curDate,
     "views": contentData.views,
