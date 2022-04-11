@@ -1,7 +1,7 @@
 
 /* home.js */
 
-import { customiseNavbar } from '../util.js'
+import { customiseNavbar, loadPage } from '../util.js'
 
 export async function setup(node) {
 	console.log('HOME: setup')
@@ -21,14 +21,15 @@ export async function setup(node) {
 
 // this example loads the data from a JSON file stored in the uploads directory
 async function addContent(node) {
-	var userType = "teacher"
+	var userType = "student"
 	const url = "https://partner-parent-8080.codio-box.uk/api/homepage"
 	const options = {
 		methods: "GET",
 		headers: 
 		{
 			'Content-Type': "application/vnd.api+json",
-			'Authorization': "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlYWNoZXIiLCJleHAiOjE2NDkwMjg5Njd9.ibJJf05qBOhMfU5L70Xb05kLZzU5zJRaK4QeWL_KBiV-KadtFCXgXVQ09zAaDIxXmeu52JWKEDt6c0qR8bhx8Q"
+			'Authorization': "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRoZXN0dWRlbnQiLCJleHAiOjE2NDk2OTM5NjF9.5gXc2GPBECmCyfADlAMVlweUMAIDLayo3dFu6CN0WuXnW1wSfh9w4WCYPlwPHz3iMWcGNtGa0ztUoBR76R5Awg",
+			'Accept': 'application/vnd.api+json'
 		}
 	}
 	const response = await fetch(url, options)
@@ -61,7 +62,13 @@ async function homeStudent(res, node)
 		console.log(fragment.querySelector('p#two').innerText)
 		fragment.querySelector('p#three').innerText = contentJson.accessed
 		console.log(fragment.querySelector('p#three').innerText)
-		fragment.querySelector('a#viewContent').setAttribute('href', `./content/${index+1}`)
+		let fragLink = fragment.querySelector('a#viewContent')
+		let link = `content-id=${index+1}`
+		fragLink.setAttribute('href', link)
+		fragLink.addEventListener('click', event => {
+			event.preventDefault()
+			loadPage(link)
+		})
 		node.appendChild(fragment)
 	}
 }
@@ -80,7 +87,13 @@ async function homeTeacher(res, node)
 		console.log(fragment.querySelector('p#three').innerText)
 		fragment.querySelector('p#four').innerText = "passrate: " + contentJson.passrate
 		console.log(fragment.querySelector('p#four').innerText)
-		fragment.querySelector('a#viewContent').setAttribute('href', `./content/${index+1}`)
+		let fragLink = fragment.querySelector('a#viewContent')
+		let link = `content-id=${index+1}`
+		fragLink.setAttribute('href', link)
+		fragLink.addEventListener('click', event => {
+			event.preventDefault()
+			loadPage(link)
+		})
 		node.appendChild(fragment)
 	}
 }

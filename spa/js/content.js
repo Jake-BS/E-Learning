@@ -2,7 +2,7 @@
 
 import { customiseNavbar } from '../util.js'
 
-export async function setup(node) {
+export async function setup(node, queryString) {
 	console.log('content: setup')
 	try {
 		console.log(node)

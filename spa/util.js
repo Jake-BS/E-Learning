@@ -19,27 +19,41 @@ export async function triggerPageChange() {
 	console.log('pageChange')
 	const page = getPageName()
 	console.log(`trying to load page: ${page}`)
+	//trying to get individual content
+	const [route, data] = page.split('-')
+	console.log(`${route} - ${data}`)
+
 	// get a reference to the correct template element
-	let template = document.querySelector(`template#${page}`) ?? document.querySelector('template#home')
-	if (page.substring(0, 7) == "content") 
-	{
-		template = document.querySelector('template#contentTemplate')
-		console.log("Entering content page")
-	}
+	let template = document.querySelector(`template#${route}`) ?? document.querySelector('template#home')
 	let node = template.content.cloneNode(true) // get a copy of the template node
 	try {
-		const module = await import(`./js/${page}.js`)
-		await module.setup(node) // the setup script may need to modify the template fragment before it is displayed
+		const module = await import(`./js/${route}.js`)
+		if (data)
+		{
+			const querystring = data ? extractQuerystring(data) : {}
+			console.log(querystring)
+			await module.setup(node, querystring)
+		}
+		else await module.setup(node) // the setup script may need to modify the template fragment before it is displayed
 	} catch(err) {
-		console.warn(`no script for "${page}" page or error in script`)
+		console.warn(`no script for "${route}" page or error in script`)
 		console.log(err)
 	}
 	// replace contents of the page with the correct template
 	const article = document.querySelector('article')
 	while (article.lastChild) article.removeChild(article.lastChild) // remove any content from the article element
 	article.appendChild(node) // insert the DOM fragment into the page
-	highlightNav(page)
-	article.id = page
+	highlightNav(route)
+	article.id = route
+}
+
+
+function extractQuerystring(data) {
+	return data.split('&').reduce((acc, data) => {
+		const [key, val] = data.split('=')
+		acc[key] = val
+		return acc
+	}, {})
 }
 
 function getPageName() {

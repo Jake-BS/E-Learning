@@ -6,6 +6,12 @@ import { highlightNav,  triggerPageChange } from './util.js'
 window.addEventListener('popstate', triggerPageChange)
 
 document.querySelectorAll('nav a').forEach(element => element.addEventListener('click', router))
+document.querySelectorAll('a').forEach(element => element.addEventListener('click', router))
+
+document.addEventListener('DOMContentLoaded', () => {
+	console.log('DOM CONTENT LOADED')
+	
+})
 
 router()
 
