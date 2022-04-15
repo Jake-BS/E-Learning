@@ -17,7 +17,6 @@
 			<ul>
 				<li><a href="/">Home</a></li>
 				<li><a href="/register">Register</a></li>
-				<li><a href="/foo">Foo</a></li>
 				<li><a href="/login">Log in</a></li>
 				<li><a href="/logout">Log out</a></li>
 			</ul>
@@ -40,9 +39,14 @@
 		</form>
 	</template>
 	<template id="register">
-		<form name="register">
+		<form name="register" method="post">
 			<p><label for="name">Username</label><br /><input type="text" name="user" placeholder="full name" /></p>
 			<p><label for="pass">Password</label><br /><input type="password" name="pass" placeholder="password" /></p>
+			<p>User Type</p>
+			<select name="userType" id="userType">
+  				<option value="student">Student</option>
+  				<option value="teacher">Teacher</option>
+			</select>
 			<p><button type="submit">Create account</button></p>
 		</form>
 	</template>
@@ -52,6 +56,18 @@
 			<textarea name="text"></textarea>
 			<p><label for="image">Image</label><br /><input type="file" id="imageUrl" name="imageUrl" multiple /></p>
 			<p><button type="submit">Create content</button></p>
+		</form>
+	</template>
+	<template id="addQuestion">
+		<form name="addQuestion" method="post">
+			<p>Question Text:</p>
+			<textarea name="questionText"></textarea>
+			<p><label for="title">Correct Answer</label><br /><input type="text" name="correctA"/></p>
+			<p><label for="title">Incorrect Answer One</label><br /><input type="text" name="inCAOne"/></p>
+			<p><label for="title">Incorrect Answer Two</label><br /><input type="text" name="inCATwo"/></p>
+			<p><label for="title">Incorrect Answer Three</label><br /><input type="text" name="inCAThree"/></p>
+			<p><label for="image">Image</label><br /><input type="file" name="questionImageUrl" multiple /></p>
+			<p><button type="submit">Add Question</button></p>
 		</form>
 	</template>
 	<template id="logout">
@@ -72,6 +88,7 @@
 			<p id="three"></p>
 			<p id="four"></p>
 			<p><a id="viewContent">View Content</a></p>
+			<button id="questionButton">Add Question</button>
 		</section>
 	</template>
 	<template id="contentTemplate">
@@ -79,11 +96,37 @@
 			<h2 id="title"></h2>
 			<pre id="text"></pre>
 			<img id="image"></img><br/>
-			<select id="test" multiple>
-  				<option value="one" id="one">one</option>
-  				<option value="two" id="two">two</option>
-  				<option value="three" id="three">three</option>
-			</select>
+			<p id="teacherName"></p>
+		</section>
+	</template>
+	<template id="contentTemplateQuestion">
+		<section>
+			<h2 id="title"></h2>
+			<pre id="text"></pre>
+			<img id="image"></img><br/>
+			<form id="test" method="post">
+  				<input type=radio value="one" id="one"><p value="one" id="one">one</p></input>
+  				<input type=radio value="two" id="two"><p value="two" id="two">two</p></input>
+  				<input type=radio value="three" id="three"><p value="three" id="three">three</p></input>
+				<input type=radio value="four" id="four"><p value="four" id="four">four</p></input>
+				<button type="submit">Submit Answer</button>
+			</form>
+			<p id="teacherName"></p>
+		</section>
+	</template>
+	<template id="contentTemplateQuestionTeacher">
+		<section>
+			<h2 id="title"></h2>
+			<pre id="text"></pre>
+			<img id="image"></img><br/>
+			<p>Question One</p>
+			<p value="one" id="one">one</p>
+			<p>Question Two</p>
+			<p value="two" id="two">two</p>
+			<p>Question Three</p>
+			<p value="three" id="three">three</p>
+			<p>Question Four</p>
+			<p value="four" id="four">four</p>
 			<p id="teacherName"></p>
 		</section>
 	</template>

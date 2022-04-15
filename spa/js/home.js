@@ -89,6 +89,15 @@ async function homeTeacher(res, node)
 			event.preventDefault()
 			loadPage(link)
 		})
+		let qButton = fragment.querySelector('button#questionButton')
+		if(contentJson.questionText == "None") qButton.innerText = "Add Question"
+		else qButton.innerText = "Edit Question"
+		
+		let buttonLink = `addQuestion-id=${index+1}`
+		qButton.addEventListener('click', event => {
+			event.preventDefault()
+			loadPage(buttonLink)
+		})
 		node.appendChild(fragment)
 	}
 	let button = document.createElement('button')

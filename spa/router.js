@@ -1,17 +1,17 @@
 
 /* router.js */
 
-import { highlightNav,  triggerPageChange } from './util.js'
+import { highlightNav,  triggerPageChange, customiseNavbar } from './util.js'
 
 window.addEventListener('popstate', triggerPageChange)
 
 document.querySelectorAll('nav a').forEach(element => element.addEventListener('click', router))
 document.querySelectorAll('a').forEach(element => element.addEventListener('click', router))
 
-document.addEventListener('DOMContentLoaded', () => {
-	console.log('DOM CONTENT LOADED')
-	
-})
+let token = localStorage.getItem('authorization')
+console.log("This is the token" + token)
+if(token === null) customiseNavbar(['register', 'login']) //navbar if logged out
+else customiseNavbar(['home', 'logout']) //navbar if logged out
 
 router()
 
