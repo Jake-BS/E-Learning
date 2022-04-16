@@ -10,6 +10,10 @@ export async function setup(node, queryString) {
 		customiseNavbar(['home', 'logout']) // navbar if logged in
 		let token = localStorage.getItem('authorization')
 		token = `Bearer ${token}`
+		const url = `https://partner-parent-8080.codio-box.uk/api/content/${queryString.id}`
+		const response = await secureGet(url, token)
+		const json = response.json
+		if (json.questionText != "None") fillInOldQuestion(node, json)
 		console.log(token)
 		if(token === null) customiseNavbar(['home', 'logout']) //navbar if logged out
 		// add content to the page
@@ -20,6 +24,15 @@ export async function setup(node, queryString) {
 	} catch(err) {
 		console.error(err)
 	}
+}
+
+async function fillInOldQuestion(node, json)
+{
+	node.querySelector('textarea#questionText').value = json.questionText
+	node.querySelector('input#correctA').value = json.correctA
+	node.querySelector('input#inCAOne').value = json.inCAOne
+	node.querySelector('input#inCATwo').value = json.inCATwo
+	node.querySelector('input#inCAThree').value = json.inCAThree
 }
 
 async function addQuestion(queryString, event)

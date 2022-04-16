@@ -57,6 +57,8 @@ async function homeStudent(res, node)
 		console.log(fragment.querySelector('p#two').innerText)
 		fragment.querySelector('p#three').innerText = "Opened: " + contentJson.accessed
 		console.log(fragment.querySelector('p#three').innerText)
+		fragment.querySelector('p#four').innerText = "Question Answered: " + contentJson.questionAnswered
+		if (contentJson.questionAnswered == "true") fragment.querySelector('p#five').innerText = "Question Correct: " + contentJson.answerCorrect
 		let fragLink = fragment.querySelector('a#viewContent')
 		let link = `content-id=${index+1}`
 		fragLink.setAttribute('href', link)
@@ -66,6 +68,18 @@ async function homeStudent(res, node)
 		})
 		node.appendChild(fragment)
 	}
+	let statsTitle = document.createElement("h2")
+	statsTitle.innerText = "Student Stats:"
+	node.appendChild(statsTitle)
+	let viewedP = document.createElement("p")
+	viewedP.innerText = "Number of Learning Materials Viewed: " + res.contentViewedCount
+	node.appendChild(viewedP)
+	let testsAttemptedP = document.createElement("p")
+	testsAttemptedP.innerText = "Number of Tests Attempted: " + res.numberOfTestsAttempted
+	node.appendChild(testsAttemptedP)
+	let averageScoreP = document.createElement("p")
+	averageScoreP.innerText = "Average Test Score: " + res.averageScore
+	node.appendChild(averageScoreP)
 }
 
 async function homeTeacher(res, node)
@@ -89,15 +103,16 @@ async function homeTeacher(res, node)
 			event.preventDefault()
 			loadPage(link)
 		})
-		let qButton = fragment.querySelector('button#questionButton')
-		if(contentJson.questionText == "None") qButton.innerText = "Add Question"
-		else qButton.innerText = "Edit Question"
+		let qButton = document.createElement('button')
+		console.log(contentJson.questionText)
+		qButton.innerText = "Edit Question"
 		
 		let buttonLink = `addQuestion-id=${index+1}`
 		qButton.addEventListener('click', event => {
 			event.preventDefault()
 			loadPage(buttonLink)
 		})
+		fragment.appendChild(qButton)
 		node.appendChild(fragment)
 	}
 	let button = document.createElement('button')
@@ -107,6 +122,7 @@ async function homeTeacher(res, node)
 			loadPage("uploadContent")
 		})
 	node.appendChild(button)
+
 }
 
 

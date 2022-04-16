@@ -5,6 +5,8 @@
 		<meta name="viewport" content="width=device-width", initial-scale="1.0" />
 		<title>Single Page App</title>
 		<link rel="stylesheet" href="style/main.css">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.0/showdown.min.js"></script>
+		<script type="module" src="markdown.js" defer></script>
 		<script type="module" src="./router.js" defer></script>
 	</head>
 	<body>
@@ -62,12 +64,12 @@
 	<template id="addQuestion">
 		<form name="addQuestion" method="post">
 			<p>Question Text:</p>
-			<textarea name="questionText"></textarea>
-			<p><label for="title">Correct Answer</label><br /><input type="text" name="correctA"/></p>
-			<p><label for="title">Incorrect Answer One</label><br /><input type="text" name="inCAOne"/></p>
-			<p><label for="title">Incorrect Answer Two</label><br /><input type="text" name="inCATwo"/></p>
-			<p><label for="title">Incorrect Answer Three</label><br /><input type="text" name="inCAThree"/></p>
-			<p><label for="image">Image</label><br /><input type="file" name="questionImageUrl" multiple /></p>
+			<textarea name="questionText" id="questionText"></textarea>
+			<p><label for="title">Correct Answer</label><br /><input type="text" name="correctA" id="correctA"/></p>
+			<p><label for="title">Incorrect Answer One</label><br /><input type="text" name="inCAOne" id="inCAOne"/></p>
+			<p><label for="title">Incorrect Answer Two</label><br /><input type="text" name="inCATwo" id="inCATwo"/></p>
+			<p><label for="title">Incorrect Answer Three</label><br /><input type="text" name="inCAThree" id="inCAThree"/></p>
+			<p><label for="image">Image</label><br /><input type="file" name="questionImageUrl" multiple id="questionImageUrl"/></p>
 			<p><button type="submit">Add Question</button></p>
 		</form>
 	</template>
@@ -88,8 +90,8 @@
 			<p id="two"></p>
 			<p id="three"></p>
 			<p id="four"></p>
+			<p id="five"></p>
 			<p><a id="viewContent">View Content</a></p>
-			<button id="questionButton">Add Question</button>
 		</section>
 	</template>
 	<template id="contentTemplate">
@@ -106,6 +108,9 @@
 			<h2 id="title"></h2>
 			<pre id="text"></pre>
 			<img id="image"></img><br/>
+			<h2>Question</h2>
+			<pre id="questionText"></pre>
+			<img id="questionImage"></img><br/>
 			<form id="test" method="post">
   				<input type=radio value="one" name="test" id="one"><p value="one" id="one">one</p></input>
   				<input type=radio value="two" name="test" id="two"><p value="two" id="two">two</p></input>
@@ -123,13 +128,16 @@
 			<h2 id="title"></h2>
 			<pre id="text"></pre>
 			<img id="image"></img><br/>
-			<p>Question One</p>
+			<h2>Question</h2>
+			<pre id="questionText"></pre>
+			<img id="questionImage"></img><br/>
+			<p>Correct Answer</p>
 			<p value="one" id="one">one</p>
-			<p>Question Two</p>
+			<p>Incorrect One</p>
 			<p value="two" id="two">two</p>
-			<p>Question Three</p>
+			<p>Incorrect Two</p>
 			<p value="three" id="three">three</p>
-			<p>Question Four</p>
+			<p>Incorrect Three</p>
 			<p value="four" id="four">four</p>
 			<p id="teacherName"></p>
 		</section>

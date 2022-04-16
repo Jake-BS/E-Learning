@@ -135,7 +135,6 @@ async function homeTeacher(account) {
 }
 async function homeStudent(account) {
 	//required data should be pulled from the user's personal table, as well as the content table.
-	//THE BELOW THREE LINES COULD PROBABLY BE WRITTEN IN A FOR LOOP
 	let sql = `SELECT COUNT(*) as countValue from ${account.user} WHERE contentOpened = "true"`
 	const openedCount = await db.query(sql)
 
@@ -150,7 +149,7 @@ async function homeStudent(account) {
 	let contentJsonList = []
 	//after that look at the home teacher function, and finally look at what other requests you need.
 	for (var content of allContent) {
-		sql = `SELECT contentOpened from ${account.user} where contentID = ${content.id}`
+		sql = `SELECT * from ${account.user} where contentID = ${content.id}`
 		let accessed = await db.query(sql)
 		console.log(accessed)
 		let contentJson = {
@@ -158,7 +157,9 @@ async function homeStudent(account) {
 			title: content.title,
 			date: content.curDate,
 			teacherName: content.teacher,
-			accessed: accessed[0].contentOpened
+			accessed: accessed[0].contentOpened,
+			questionAnswered: accessed[0].testDone,
+			answerCorrect: accessed[0].answerCorrect
 		}
 		contentJsonList.push(contentJson)
 	}
