@@ -8,7 +8,7 @@ export async function setup(node) {
 		console.log('LOGIN: setup')
 		console.log(node)
 		document.querySelector('header p').innerText = 'Login Page'
-		customiseNavbar(['home', 'register'])
+		customiseNavbar(['register'])
 		node.querySelector('form').addEventListener('submit', await login)
 	} catch(err) {
 		console.error(err)

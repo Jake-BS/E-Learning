@@ -32,7 +32,12 @@ async function releaseContent()
 	const element = document.querySelector('input[name="imageUrl"]')
 	console.log(element)
 	const file = document.querySelector('input[name="imageUrl"]').files[0]
-	const base64 = await file2DataURI(file)
+	let base64 = "None"
+	if (file != null)
+	{
+		base64 = await file2DataURI(file)
+	}
+	
 
     let url = `https://partner-parent-8080.codio-box.uk/api/content/`
 	let theBody = {

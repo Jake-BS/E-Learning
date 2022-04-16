@@ -35,7 +35,11 @@ async function addQuestion(queryString, event)
 	const element = document.querySelector('input[name="questionImageUrl"]')
 	console.log(element)
 	const file = document.querySelector('input[name="questionImageUrl"]').files[0]
-	const base64 = await file2DataURI(file)
+	let base64 = "None"
+	if (file != null)
+	{
+		base64 = await file2DataURI(file)
+	}
 
     let url = `https://partner-parent-8080.codio-box.uk/api/question/${queryString.id}`
 	let theBody = {

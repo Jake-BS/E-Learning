@@ -75,6 +75,7 @@ export async function register(credentials) {
 			contentOpened VARCHAR(5),
 			answerCorrect VARCHAR(5)
 			);`
+			console.log(sql + " defined")
 			await addAllCurrentContent(credentials.user)
 		} else if (credentials.userType == "teacher")
 		{
@@ -230,28 +231,58 @@ export async function addContentToStudentRows()
 	}
 }
 
-export async function getContentData(contentId)
+export async function getContentData(contentId, user)
 {
-	const sql = `SELECT * FROM content WHERE id = ${contentId}`
-	const response = await db.query(sql)
+	let sql = `SELECT * FROM content WHERE id = ${contentId}`
+	let response = await db.query(sql)
 	const contentData = response[0]
-	const contentJson = 
+	const userType = await getType(user)
+	console.log("Usertype is: " + userType)
+	let contentJson = {}
+	if (userType == "teacher")
 	{
-    "teacher": contentData.teacher,
-    "title": contentData.title,
-	"text": contentData.text,
-    "imageUrl": contentData.imageUrl,
-    "curDate": contentData.curDate,
-    "views": contentData.views,
-    "NOCAQs": contentData.NOCAQs,
-    "NOAs": contentData.NOAs,
-    "questionText": contentData.questionText,
-    "questionImageUrl": contentData.questionImageUrl,
-    "correctA": contentData.correctA,
-    "inCAOne": contentData.inCAOne,
-    "inCATwo": contentData.inCATwo,
-    "inCAThree": contentData.inCAThree
+		console.log("Getting content for teacher")
+		contentJson = 
+		{
+    	"teacher": contentData.teacher,
+    	"title": contentData.title,
+		"text": contentData.text,
+    	"imageUrl": contentData.imageUrl,
+    	"curDate": contentData.curDate,
+    	"views": contentData.views,
+    	"NOCAQs": contentData.NOCAQs,
+    	"NOAs": contentData.NOAs,
+    	"questionText": contentData.questionText,
+    	"questionImageUrl": contentData.questionImageUrl,
+    	"correctA": contentData.correctA,
+    	"inCAOne": contentData.inCAOne,
+    	"inCATwo": contentData.inCATwo,
+    	"inCAThree": contentData.inCAThree
+		}
+	} else if (userType == "student")
+	{
+		console.log("Getting content for student")
+		sql = `SELECT * FROM ${user} WHERE contentID=${contentId}`
+		let response = await db.query(sql)
+		const userContentData = response[0]
+		contentJson = 
+		{
+    	"teacher": contentData.teacher,
+    	"title": contentData.title,
+		"text": contentData.text,
+    	"imageUrl": contentData.imageUrl,
+    	"curDate": contentData.curDate,
+    	"testDone": userContentData.testDone,
+    	"answerCorrect": userContentData.answerCorrect,
+    	"questionText": contentData.questionText,
+    	"questionImageUrl": contentData.questionImageUrl,
+    	"correctA": contentData.correctA,
+    	"inCAOne": contentData.inCAOne,
+    	"inCATwo": contentData.inCATwo,
+    	"inCAThree": contentData.inCAThree
+		}
 	}
+	
 	return contentJson
 }
 

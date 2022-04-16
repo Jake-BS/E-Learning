@@ -129,7 +129,7 @@ router.get('/api/content/:id', async context => {
 			context.response.body = JSON.stringify({ status: 'failure', msg: 'JWT token invalid or expired' })
 			context.response.status = 401
 		} else {
-			const contentData = await getContentData(context.params.id)
+			const contentData = await getContentData(context.params.id, validUser)
 			const viewed = await viewContent(context.params.id, validUser)
 			if (viewed) console.log("Content has been viewed")
 			//the below line is currently hard coded but should depend on what type the user id is associated with in the db.
