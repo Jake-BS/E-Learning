@@ -97,7 +97,7 @@ async function homeTeacher(res, node)
 		fragment.querySelector('p#four').innerText = "passrate: " + contentJson.passrate
 		console.log(fragment.querySelector('p#four').innerText)
 		let fragLink = fragment.querySelector('a#viewContent')
-		let link = `content-id=${index+1}`
+		let link = `content-id=${contentJson.id}`
 		fragLink.setAttribute('href', link)
 		fragLink.addEventListener('click', event => {
 			event.preventDefault()
@@ -107,7 +107,7 @@ async function homeTeacher(res, node)
 		console.log(contentJson.questionText)
 		qButton.innerText = "Edit Question"
 		
-		let buttonLink = `addQuestion-id=${index+1}`
+		let buttonLink = `addQuestion-id=${contentJson.id}`
 		qButton.addEventListener('click', event => {
 			event.preventDefault()
 			loadPage(buttonLink)

@@ -120,6 +120,7 @@ async function homeTeacher(account) {
 			passrate = "No one has answered this"
 		}
 		let contentJson = {
+			id: content.id,
 			title: content.title,
 			views: content.views,
 			questionAttempts: content.NOAs,
@@ -395,7 +396,7 @@ export async function addQuestion(id, user, newContent)
 	const contentResults = await db.query(sql)
 	if (contentResults[0].teacher == user)
 	{
-		sql = `UPDATE content SET questionText = "${newContent.questionText}", questionImageUrl = "${newContent.questionImageUrl}", correctA = "${newContent.correctA}", inCAOne = "${newContent.inCAOne}", inCATwo = "${newContent.inCATwo}", inCAThree = "${newContent.inCAThree}"`
+		sql = `UPDATE content SET questionText = "${newContent.questionText}", questionImageUrl = "${newContent.questionImageUrl}", correctA = "${newContent.correctA}", inCAOne = "${newContent.inCAOne}", inCATwo = "${newContent.inCATwo}", inCAThree = "${newContent.inCAThree}" WHERE id=${id}`
 		await db.query(sql)
 		return "added"
 	}
