@@ -70,7 +70,7 @@ async function questionExists(json, node, queryString)
 		fragment.querySelector('p#three').innerText = answerArray[2]
 		fragment.querySelector('input#three').value = answerArray[2]
 		fragment.querySelector('p#four').innerText = answerArray[3]
-		fragment.querySelector('input#four').value = answerArray[4]
+		fragment.querySelector('input#four').value = answerArray[3]
 		if (json.testDone != "true")
 		{
 			fragment.querySelector('form').addEventListener('submit', async event => 

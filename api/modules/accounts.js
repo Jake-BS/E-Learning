@@ -27,7 +27,7 @@ export async function login(credentials) {
 	sql = `SELECT pass FROM accounts WHERE user = "${user}";`
 	records = await db.query(sql)
 	const valid = await compare(pass, records[0].pass)
-	if(valid === false) throw new Error(`invalid password for account "${user}"`)
+	if(valid === false) return "unauthorized"
 	return user
 }
 
@@ -129,6 +129,7 @@ async function homeTeacher(account) {
 		contentJsonList.push(contentJson)
 	}
 	const homeData = {
+		desc: "data needed to render homepage for teacher",
 		user: `${account.user}`,
 		content: contentJsonList
 	}
@@ -171,6 +172,7 @@ async function homeStudent(account) {
 		averageScoreString = (averageScore * 100).toString() + "%"
 	} else averageScoreString = "No tests completed"
 	const homeData = {
+		desc: "data needed to render homepage for student",
 		username: account.user,
 		contentViewedCount: openedCount[0].countValue,
 		numberOfTestsAttempted: testDoneCount[0].countValue,
@@ -246,6 +248,8 @@ export async function getContentData(contentId, user)
 		console.log("Getting content for teacher")
 		contentJson = 
 		{
+		"desc": "data needed to render full content page for teacher",
+		"id": contentData.id,
     	"teacher": contentData.teacher,
     	"title": contentData.title,
 		"text": contentData.text,
@@ -267,8 +271,11 @@ export async function getContentData(contentId, user)
 		sql = `SELECT * FROM ${user} WHERE contentID=${contentId}`
 		let response = await db.query(sql)
 		const userContentData = response[0]
+		if (userContentData == null) return "none"
 		contentJson = 
 		{
+		"desc": "data needed to render full content page for student",
+		"id": contentData.id,
     	"teacher": contentData.teacher,
     	"title": contentData.title,
 		"text": contentData.text,
@@ -354,11 +361,13 @@ export async function viewContent(id, user)
 export async function answerQuestion(id, user, answer)
 {
 	try {
+		const userType = await getType(user)
+		if (userType != "student") return "teacher"
 		let sql = `SELECT * FROM content WHERE id = ${id}`
 		const correctA = await db.query(sql)
 		if (correctA[0].questionText == "None") return "noQ"
 		console.log("Correct answer is " + correctA[0].correctA)
-		sql = `SELECT testDone FROM ${user}`
+		sql = `SELECT testDone FROM ${user} WHERE contentID =${id}`
 		const results = await db.query(sql)
 		if (results[0].testDone == "true") return "previously"
 		else

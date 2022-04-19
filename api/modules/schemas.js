@@ -2,6 +2,9 @@
 const studentHomeSchema = {
     type: "object",
       properties: {
+        desc : {
+          type: "string"
+        },
         username: {
           type: "string"
         },
@@ -46,6 +49,9 @@ const teacherSchema = {
   schema: {
     type: "object",
     properties: {
+      desc : {
+          type: "string"
+        },
       username: {
         type: "string"
       },
@@ -164,6 +170,19 @@ const questionSchema = {
     }
   },
   required: ["questionText", "questionImageUrl", "correctA", "inCAOne", "inCATwo", "inCAThree"]
+}
+
+const registerSchema = {
+  type: "object",
+  properties: {
+    userType: {
+      type: "string"
+    },
+    isAdmin: {
+      type: "string"
+    }
+  },
+  required: ["userType", "isAdmin"]
 }
 
 export {studentHomeSchema, teacherSchema, postContentSchema, answerQuestionSchema, questionSchema};
